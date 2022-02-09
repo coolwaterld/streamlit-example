@@ -17,6 +17,7 @@ def draw_dataflow(task_seq):
                     graph.edge(origin, task["id"],task["name"])
             else:
                 if "source" in task["features"].keys():
+                    graph.node(str(task["features"]["source"]),shape='box')
                     graph.edge(str(task["features"]["source"]), task["id"],task["name"])
                          
         st.graphviz_chart(graph)
