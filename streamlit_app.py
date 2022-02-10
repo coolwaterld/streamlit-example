@@ -1,6 +1,7 @@
 import streamlit as st
 import graphviz as graphviz
 import json
+import test_schema
 
 
 def draw_dataflow(task_seq):
@@ -31,8 +32,15 @@ if usecase_file is not None:
     with col1:
         usecase_dict = json.loads(usecase_str)
         #todo: json schema validate
-        task_sequence = usecase_dict["usecase"]["task_sequence"]
-        st.json(task_sequence)
+        schema = test_schema.get_schema("./joe_schema.json")
+        is_valid, msg = test_schema.validate_json(schema,usecase_dict)
+        if is_valid:
+            task_sequence = usecase_dict["usecase"]["task_sequence"]
+            st.json(task_sequence)
+        else:
+            st.error("Given JSON data is InValid")
+            st.error(msg)
+        
         
     with col2:    
         draw_dataflow(task_sequence)

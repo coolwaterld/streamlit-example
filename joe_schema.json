@@ -1,0 +1,423 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://siemens.com/foa/schemas/appselector/usecase",
+  "type": "object",
+  "description": "This is the schema for the json file itself.",
+  "additionalProperties": false,
+  "required": [
+    "usecase"
+  ],
+  "properties": {
+    "usecase": {
+      "$ref": "#/$defs/usecase"
+    }
+  },
+  "$defs": {
+    "usecase": {
+      "description": "The root object of the json file.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "domain",
+        "system_components",
+        "requirements",
+        "task_sequence"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        "name": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string",
+          "enum": [
+            "Condition Monitoring & Process Control",
+            "Predictive Analytics & Maintenance",
+            "Quality Control & Assurance",
+            "Asset Management",
+            "Process and Plant Simulation",
+            "Process Optimization & Efficiency Improvement",
+            "Production Data Management",
+            "Security & Safety Management",
+            "Resource Utilization & Cost Reduction",
+            "data management",
+            "defect prediction",
+            "Other"
+          ]
+        },
+        "system_components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/system_component"
+          }
+        },
+        "requirements": {
+          "$ref": "#/$defs/usecase_requirements"
+        },
+        "task_sequence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/usecase_task"
+          }
+        }
+      }
+    },
+    "system_component": {
+      "description": "An object describing a component of the target system.",
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "id",
+        "name",
+        "component_type",
+        "features"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        "name": {
+          "type": "string"
+        },
+        "component_type": {
+          "type": "string",
+          "oneOf": [
+            {
+              "title": "hardware",
+              "$ref": "#/$defs/known_hardwares"
+            },
+            {
+              "title": "software",
+              "$ref": "#/$defs/known_softwares"
+            },
+            {
+              "title": "cloud",
+              "$ref": "#/$defs/known_clouds"
+            }
+          ]
+        },
+        "short_description": {
+          "type": "string"
+        },
+        "features": {
+          "$ref": "#/$defs/component_feature"
+        }
+      }
+    },
+    "usecase_requirements": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "loop_time": {
+          "$ref": "#/$defs/numerical_constraint"
+        },
+        "cpu_load": {
+          "$ref": "#/$defs/numerical_constraint"
+        }
+      }
+    },
+    "component_performance": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "cycle_time": {
+          "$ref": "#/$defs/numerical_constraint"
+        },
+        "throughput": {
+          "$ref": "#/$defs/numerical_constraint"
+        },
+        "latency": {
+          "$ref": "#/$defs/numerical_constraint"
+        }
+      }
+    },
+    "usecase_task": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "id",
+        "name",
+        "origin"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "enum": [
+            "Read datapoint from PLC",
+            "Write datapoint to PLC",
+            "Process time-series data",
+            "Process image data",
+            "Process video data",
+            "Process audio data",
+            "Visualize data trend",
+            "Visualize data sample",
+            "Visualize event",
+            "Trigger image acquisition",
+            "Read image from camera",
+            "Write data to file",
+            "Read data from file",
+            "Upload data to cloud",
+            "Upload file to cloud",
+            "Download data from cloud",
+            "Download file from cloud",
+            "Read data from sensor",
+            "Store data into database",
+            "Relabel data and forward",
+            "Filter valid data",
+            "Cause Identification",
+            "Read datapoint from panel",
+            "Write datapoint to panel",
+            "Format package",
+            "Compression",
+            "Encryption",
+            "Mapping events",
+            "Mapping commands",
+            "Run the ML Model",
+            "Write data to storage",
+            "Read Video data",
+            "Process the video data",
+            "Write image data to file",
+            "Process the Image data",
+            "Train the Model",
+            "Get the control singal",
+            "Collect images/ videos from camera",
+            "Publish the data to databus",
+            "Process data for object detection",
+            "Other"
+          ]
+        },
+        "origin": {
+          "type": ["string","array"]
+        },
+        "order": {
+          "type": "integer"
+        },
+        "features": {
+          "$ref": "#/$defs/task_feature"
+        }
+      }
+    },
+    "component_feature": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "protocols": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/known_protocols"
+          }
+        },
+        "data_types": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/known_data_types"
+          }
+        },
+        "format": {
+          "type": "string"
+        },
+        "visualization_charts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/known_charts"
+          }
+        },
+        "performance": {
+          "$ref": "#/$defs/component_performance"
+        }
+      }
+    },
+    "task_feature": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "source": {
+          "type": ["string","array"]
+        },
+        "target": {
+          "type": ["string","array"]
+        },
+        "trigger": {
+          "type": "string"
+        }
+      }
+    },
+    "known_hardwares": {
+      "type": "string",
+      "anyOf": [
+        {"enum": ["hardware"]},        
+        {
+          "title": "plc",
+          "$ref": "#/$defs/known_plcs"
+        },
+        {
+          "title": "camera",
+          "$ref": "#/$defs/known_cameras"
+        },
+        {
+          "title": "sensor",
+          "$ref": "#/$defs/known_sensors"
+        }
+      ]
+    },
+    "known_softwares": {
+      "type": "string",
+      "anyOf": [
+        {"enum": ["software"]}, 
+        {
+          "title": "database",
+          "$ref": "#/$defs/known_databases"
+        },
+        {
+          "title": "machine learning",
+          "$ref": "#/$defs/known_ml"
+        },
+        {
+          "title": "visualization",
+          "$ref": "#/$defs/known_visualizations"
+        }
+      ]
+    },
+    "known_clouds": {
+      "type": "string",
+      "enum": [
+        "cloud",
+        "MindSphere",
+        "AWS",
+        "Azure",
+        "Google",
+        "Alibaba"
+      ]
+    },
+    "known_plcs": {
+      "type": "string",
+      "enum": [
+        "Siemens PLC",
+        "Rockwell PLC",
+        "Mitsubishi PLC"
+      ]
+    },
+    "known_cameras": {
+      "type": "string",
+      "enum": [
+        "RGB Camera",
+        "RGBD Camera",
+        "Infrared Camera",
+        "Thermal Camera",
+        "Hyperspectral Camera"
+      ]
+    },
+    "known_sensors": {
+      "type": "string",
+      "enum": [
+        "Temperature Meter",
+        "Smoke Meter",
+        "Fire Meter"
+      ]
+    },
+    "known_databases": {
+      "type": "string",
+      "enum": [
+        "PostgreSQL",
+        "MySQL",
+        "Sqlite",
+        "SQL Server",
+        "MongoDB",
+        "Redis",
+        "InfluxDB"
+      ]
+    },
+    "known_ml": {
+      "type": "string",
+      "enum": [
+        "TensorFlow",
+        "PyTorch"
+      ]
+    },
+    "known_visualizations": {
+      "type": "string",
+      "enum": [
+        "HMI",
+        "Business Intelligent"
+      ]
+    },
+    "known_protocols": {
+      "type": "string",
+      "enum": [
+        "GB26875.1",
+        "FC18-BUS",
+        "S7",
+        "Profinet/IO",
+        "Modbus/TCP",
+        "Ethernet/IP",
+        "SLMP",
+        "OPC-UA",
+        "MQTT",
+        "CAN",
+        "RTSP",
+        "HTTP",
+        "BACnet",
+        "BUS-based",
+        "TCP-based",
+        "UDP-based",
+        "IP-based",
+        "SerialPort-based",
+        "GENICAM",
+        "Historian",
+        "Other"
+      ]
+    },
+    "known_data_types": {
+      "type": "string",
+      "enum": [
+        "control",
+        "event",
+        "time-series",
+        "image",
+        "video",
+        "audio",
+        "command",
+        "object",
+        "other"
+      ]
+    },
+    "known_charts": {
+      "type": "string",
+      "enum": [
+        "line",
+        "bar",
+        "pie",
+        "scatter",
+        "radar",
+        "tree",
+        "gantt",
+        "heatmap",
+        "other"
+      ]
+    },
+    "numerical_constraint": {
+      "type": "object",
+      "required": [
+        "value",
+        "unit"
+      ],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
