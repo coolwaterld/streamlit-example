@@ -196,7 +196,7 @@
           ]
         },
         "origin": {
-          "type": ["string","array"]
+          "type": "array"
         },
         "order": {
           "type": "integer"
@@ -241,13 +241,13 @@
       "additionalProperties": true,
       "properties": {
         "source": {
-          "type": ["string","array"]
+          "type": "array"
         },
         "target": {
-          "type": ["string","array"]
+          "type": "array"
         },
         "trigger": {
-          "type": "string"
+          "type": "array"
         }
       }
     },
