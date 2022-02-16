@@ -111,30 +111,62 @@
       }
     },
     "usecase_requirements": {
-      "type": "object",
-      "additionalProperties": true,
-      "properties": {
-        "loop_time": {
-          "$ref": "#/$defs/numerical_constraint"
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "loop_time",
+              "cpu_load",
+              "mem_usage",
+              "cached_buffer",
+              "device_storage",
+              "forwarding_time"
+            ]
+          },
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          }
         },
-        "cpu_load": {
-          "$ref": "#/$defs/numerical_constraint"
-        }
+        "required": [
+          "type",
+          "value",
+          "unit"
+        ]
       }
     },
     "component_performance": {
-      "type": "object",
-      "additionalProperties": true,
-      "properties": {
-        "cycle_time": {
-          "$ref": "#/$defs/numerical_constraint"
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "cycle_time",
+              "throughput",
+              "latency"
+            ]
+          },
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          }
         },
-        "throughput": {
-          "$ref": "#/$defs/numerical_constraint"
-        },
-        "latency": {
-          "$ref": "#/$defs/numerical_constraint"
-        }
+        "required": [
+          "type",
+          "value",
+          "unit"
+        ]
       }
     },
     "usecase_task": {
@@ -196,7 +228,10 @@
           ]
         },
         "origin": {
-          "type": ["string","array"]
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "order": {
           "type": "integer"
@@ -223,7 +258,15 @@
           }
         },
         "format": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "BMP",
+            "PNG",
+            "JPEG",
+            "TIF",
+            "SVG",
+            "TXT"
+          ]
         },
         "visualization_charts": {
           "type": "array",
@@ -241,20 +284,33 @@
       "additionalProperties": true,
       "properties": {
         "source": {
-          "type": ["string","array"]
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "target": {
-          "type": ["string","array"]
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "trigger": {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
     "known_hardwares": {
       "type": "string",
       "anyOf": [
-        {"enum": ["hardware"]},        
+        {
+          "enum": [
+            "hardware"
+          ]
+        },
         {
           "title": "plc",
           "$ref": "#/$defs/known_plcs"
@@ -272,7 +328,11 @@
     "known_softwares": {
       "type": "string",
       "anyOf": [
-        {"enum": ["software"]}, 
+        {
+          "enum": [
+            "software"
+          ]
+        },
         {
           "title": "database",
           "$ref": "#/$defs/known_databases"
@@ -419,5 +479,8 @@
         }
       }
     }
+  },
+  "traefik": {
+    "labels": []
   }
 }
