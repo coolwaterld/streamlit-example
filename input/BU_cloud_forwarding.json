@@ -1,0 +1,133 @@
+{
+  "usecase": {
+    "system_components": [
+      {
+        "id": "plc001",
+        "name": "Siemens PLC",
+        "component_type": "Siemens PLC",
+        "short_description": "Siemens PLC",
+        "features": {
+          "protocols": ["S7", "Profinet/IO"],
+          "data_types": ["time-series"],
+          "performance": [
+            {
+              "type": "cycle_time",
+              "value": 100,
+              "unit": "ms"
+            },
+            {
+              "type": "throughput",
+              "value": 1000,
+              "unit": "tags/s"
+            },
+            {
+              "type": "latency",
+              "value": 100,
+              "unit": "ms"
+            }
+          ]
+        }
+      },
+      {
+        "id": "plc002",
+        "name": "Mitsubishi",
+        "component_type": "Mitsubishi PLC",
+        "short_description": "Mitsubishi PLC",
+        "features": {
+          "protocols": ["OPC-UA"],
+          "data_types": ["time-series"],
+          "performance": [
+            {
+              "type": "cycle_time",
+              "value": 100,
+              "unit": "ms"
+            },
+            {
+              "type": "throughput",
+              "value": 1000,
+              "unit": "tags/s"
+            },
+            {
+              "type": "latency",
+              "value": 100,
+              "unit": "ms"
+            }
+          ]
+        }
+      },
+      {
+        "id": "database001",
+        "name": "database",
+        "component_type": "InfluxDB",
+        "short_description": "InfluxDB",
+        "features": {
+          "data_types": ["time-series"],
+          "performance": [
+            {
+              "type": "throughput",
+              "value": 100000,
+              "unit": "tags/s"
+            },
+            {
+              "type": "latency",
+              "value": 100,
+              "unit": "ms"
+            }
+          ]
+        }
+      },
+      {
+        "id": "cloud001",
+        "name": "cloud",
+        "component_type": "MindSphere",
+        "short_description": "MindSphere",
+        "features": {
+          "protocols": ["MQTT"],
+          "data_types": [],
+          "visulization_charts": [],
+          "performance": []
+        }
+      }
+    ],
+    "requirements": [],
+    "task_sequence": [
+      {
+        "id": "task001",
+        "name": "Read datapoint from PLC",
+        "order": 1,
+        "origin": [],
+        "features": {
+          "source": ["plc001", "plc002"]
+        }
+      },
+      {
+        "id": "task002",
+        "name": "Store data into database",
+        "order": 2,
+        "origin": ["task001"],
+        "features": {
+          "target": ["database001"]
+        }
+      },
+      {
+        "id": "task003",
+        "name": "Filter valid data",
+        "order": 3,
+        "origin": ["task002"],
+        "features": {}
+      },
+      {
+        "id": "task004",
+        "name": "Upload data to cloud",
+        "order": 4,
+        "origin": ["task003"],
+        "features": {
+          "target": ["cloud001"]
+        }
+      }
+    ],
+    "id": "uc002",
+    "name": "cloud forwarding",
+    "domain": "data management"
+  }
+}

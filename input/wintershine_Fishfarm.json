@@ -1,0 +1,247 @@
+{
+  "usecase": {
+    "id": "uc1801",
+    "name": "Wintershine Fishfarm",
+    "domain": "Condition Monitoring & Process Control",
+    "system_components": [
+      {
+        "id": "plc01",
+        "name": "S7 PLC 1500",
+        "component_type": "hardware",
+        "description": "S7 PLC 1500",
+        "features": {
+          "protocols": ["S7", "Profinet/IO"],
+          "data_types": ["control", "time-series"]
+        }
+      },
+      {
+        "id": "ext_hw01",
+        "name": "NVIDIA JETSON",
+        "component_type": "hardware",
+        "description": "External Hardware for training and inferecing of ML",
+        "features": {
+          "protocols": ["CAN", "Ethernet/IP"],
+          "data_types": ["control", "image", "time-series"]
+        }
+      },
+      {
+        "id": "sensor01",
+        "name": "ZED Mini Depth",
+        "component_type": "hardware",
+        "description": " Ultra-Depth mode for the ZED Mini to ensure accurate motion tracking of fish in the tank",
+        "features": {
+          "protocols": ["RTSP"],
+          "data_types": ["image", "video"]
+        }
+      },
+      {
+        "id": "sensor02",
+        "name": "Energy Meter",
+        "component_type": "hardware",
+        "description": "Energy Meter to measure energy usage in the fish tank",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "data_types": ["time-series"]
+        }
+      },
+      {
+        "id": "sensor03",
+        "name": "DO Meter",
+        "component_type": "hardware",
+        "description": "DO Meter",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "data_types": ["time-series"]
+        }
+      },
+      {
+        "id": "sensor04",
+        "name": "Flow Meter",
+        "component_type": "hardware",
+        "description": "Flow Meter to measure the flow rate in the fish tank",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "data_types": ["control", "time-series"]
+        }
+      },
+      {
+        "id": "sensor05",
+        "name": "Temperature Sensor",
+        "component_type": "hardware",
+        "description": "Measure the temperature ",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "data_types": ["control", "time-series"]
+        }
+      },
+      {
+        "id": "actuator01",
+        "name": "Feeder",
+        "component_type": "hardware",
+        "description": "To feed food to fish in tank",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "data_types": ["control"]
+        }
+      },
+      {
+        "id": "cloud01",
+        "name": "AWS Cloud",
+        "component_type": "cloud",
+        "description": "AWS Cloud for data storage",
+        "features": {
+          "protocols": ["MQTT", "HTTP"],
+          "data_types": ["image", "video", "time-series"]
+        }
+      },
+      {
+        "id": "storage01",
+        "name": "MangoDB",
+        "component_type": "software",
+        "description": "MongoDB database for storage",
+        "features": {
+          "protocols": ["HTTP"],
+          "data_types": ["image", "video", "time-series"]
+        }
+      },
+      {
+        "id": "analytics01",
+        "name": "Object Detection",
+        "component_type": "software",
+        "description": "To detect fish in the tank",
+        "features": {
+          "protocols": ["MQTT", "HTTP"],
+          "data_types": ["image"]
+        }
+      },
+      {
+        "id": "analytics02",
+        "name": "Classification",
+        "component_type": "software",
+        "description": "To classify the fish category based on size of the fish",
+        "features": {
+          "protocols": ["MQTT", "HTTP"],
+          "data_types": ["image"]
+        }
+      },
+      {
+        "id": "analytics03",
+        "name": "Object Counting",
+        "component_type": "software",
+        "description": "To count approximate number of fish in the tank",
+        "features": {
+          "protocols": ["MQTT", "HTTP"],
+          "data_types": ["video"]
+        }
+      },
+      {
+        "id": "analytics04",
+        "name": "MLOPS",
+        "component_type": "software",
+        "description": "Performance off device labelling, training, deploymenet of ML model",
+        "features": {
+          "protocols": ["MQTT", "HTTP"],
+          "data_types": ["image", "video", "object"]
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "type": "loop_time",
+        "value": 10,
+        "unit": "s"
+      },
+      {
+        "type": "cpu_load",
+        "value": 0.5,
+        "unit": "cores"
+      },
+      {
+        "type": "device_storage",
+        "value": 30,
+        "unit": "GB"
+      }
+    ],
+    "task_sequence": [
+      {
+        "order": 0,
+        "id": "task01",
+        "name": "Read datapoint from PLC",
+        "origin": [],
+        "features": {
+          "source": ["plc01"]
+        }
+      },
+      {
+        "order": 1,
+        "id": "task02",
+        "name": "Trigger image acquisition",
+        "origin": ["task01"],
+        "features": {
+          "target": ["sensor01"],
+          "trigger": ["software"]
+        }
+      },
+      {
+        "order": 2,
+        "id": "task32",
+        "name": "Collect images/ videos from camera",
+        "origin": [],
+        "features": {
+          "protocol": "MQTT"
+        }
+      },
+
+      {
+        "order": 3,
+        "id": "task03",
+        "name": "Publish the data to databus",
+        "origin": ["task01"],
+        "features": {
+          "protocol": "MQTT"
+        }
+      },
+      {
+        "order": 4,
+        "id": "task04",
+        "name": "Process data for object detection",
+        "origin": ["task01"],
+        "features": {
+          "protocol": "MQTT"
+        }
+      },
+
+      {
+        "order": 5,
+        "id": "task05",
+        "name": "Visualize data trend",
+        "origin": ["task02"],
+        "features": {
+          "visualization": "line-chart"
+        }
+      },
+
+      {
+        "order": 6,
+        "id": "task07",
+        "name": "Write data to file",
+        "origin": ["task04"],
+        "features": {
+          "data_type": "image",
+          "format": "JPEG"
+        }
+      },
+      {
+        "order": 7,
+        "id": "task08",
+        "name": "Upload file to cloud",
+        "origin": ["task05"],
+        "features": {
+          "target": ["cloud01"],
+          "protocol": "HTTP",
+          "format": "JPEG"
+        }
+      }
+    ]
+  }
+}

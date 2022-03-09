@@ -1,0 +1,224 @@
+{
+  "usecase": {
+    "id": "uc3831",
+    "name": "kimberly-clark usecase",
+    "domain": "defect prediction",
+    "system_components": [
+      {
+        "id": "plc01",
+        "name": "PLC",
+        "component_type": "hardware",
+        "short_description": "PLC for sensors reading",
+        "features": {
+          "protocols": ["OPC-UA"],
+          "i/p_data_types": ["control", "time-series"],
+          "o/p_data_types": []
+        }
+      },
+      {
+        "id": "plc02",
+        "name": "Rockwell PLC",
+        "component_type": "hardware",
+        "short_description": "Rockwell PLC for motor control",
+        "features": {
+          "protocols": ["OPC-UA"],
+          "i/p_data_types": ["control", "time-series"],
+          "o/p_data_types": []
+        }
+      },
+      {
+        "id": "sensor01",
+        "name": "Camera",
+        "component_type": "hardware",
+        "short_description": "Camera for defect detection",
+        "features": {
+          "protocols": ["Other"],
+          "i/p_data_types": [],
+          "o/p_data_types": ["image"]
+        }
+      },
+      {
+        "id": "sensor02",
+        "name": "Flow Meter",
+        "component_type": "hardware",
+        "short_description": "Air flow speed meter",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "i/p_data_types": [],
+          "o/p_data_types": ["time-series"]
+        }
+      },
+      {
+        "id": "sensor03",
+        "name": "Temperature",
+        "component_type": "hardware",
+        "short_description": "Temperature measurement on interested spots",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "i/p_data_types": [],
+          "o/p_data_types": ["time-series"]
+        }
+      },
+      {
+        "id": "sensor04",
+        "name": "Pressure",
+        "component_type": "hardware",
+        "short_description": "Air flow pressure measurement",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "i/p_data_types": [],
+          "o/p_data_types": ["time-series"]
+        }
+      },
+      {
+        "id": "sensor05",
+        "name": "Force",
+        "component_type": "hardware",
+        "short_description": "Extrusion force measuremnet",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "i/p_data_types": [],
+          "o/p_data_types": ["time-series"]
+        }
+      },
+      {
+        "id": "sensor06",
+        "name": "Laser distance",
+        "component_type": "hardware",
+        "short_description": "measure object positioning",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "i/p_data_types": [],
+          "o/p_data_types": ["time-series"]
+        }
+      },
+      {
+        "id": "cloud01",
+        "name": "pi",
+        "component_type": "cloud",
+        "short_description": "PI server for data storage",
+        "features": {
+          "protocols": ["HTTP"],
+          "i/p_data_types": ["time-series"],
+          "o/p_data_types": ["time-series"]
+        }
+      },
+      {
+        "id": "storage01",
+        "name": "timeSeriesDB",
+        "component_type": "software",
+        "description": "timeSeriesDB for storage",
+        "features": {
+          "protocols": ["HTTP"],
+          "i/p_data_types": ["image", "video", "time-series", "ML model"],
+          "o/p_data_types": ["image", "video", "time-series", "ML model"]
+        }
+      },
+      {
+        "id": "analytics01",
+        "name": "ML ops",
+        "component_type": "software",
+        "description": "offline trained defect detection module",
+        "features": {
+          "protocols": ["Historian"],
+          "i/p_data_types": ["image", "time-series"],
+          "o/p_data_types": ["ML Model"]
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "type": "loop_time",
+        "value": 10,
+        "unit": "s"
+      },
+      {
+        "type": "cpu_load",
+        "value": 0.5,
+        "unit": "cores"
+      },
+      {
+        "type": "device_storage",
+        "value": 40,
+        "unit": "GB"
+      }
+    ],
+    "task_sequence": [
+      {
+        "order": 0,
+        "id": "task01",
+        "name": "Read datapoint from PLC",
+        "origin": [],
+        "features": {
+          "source": ["plc01", "plc02"]
+        }
+      },
+      {
+        "order": 0,
+        "id": "task02",
+        "name": "Read image from camera",
+        "origin": [],
+        "features": {
+          "source": ["sensor01"]
+        }
+      },
+      {
+        "order": 1,
+        "id": "task03",
+        "name": "Process time-series data",
+        "origin": ["task01"],
+        "features": {
+          "function": "Data fusing and allignment"
+        }
+      },
+
+      {
+        "order": 2,
+        "id": "task04",
+        "name": "Run the ML Model",
+        "origin": ["task03"],
+        "features": {
+          "function": "Defect Prediction"
+        }
+      },
+      {
+        "order": 3,
+        "id": "task05",
+        "name": "Run the ML Model",
+        "origin": ["task02"],
+        "features": {
+          "function": "Defect Classification"
+        }
+      },
+      {
+        "order": 4,
+        "id": "task06",
+        "name": "Write data to storage",
+        "origin": ["task04"],
+        "features": {
+          "target": ["storage01"]
+        }
+      },
+
+      {
+        "order": 5,
+        "id": "task07",
+        "name": "Visualize data sample",
+        "origin": ["task04", "task05"],
+        "features": {
+          "function": ["Numeric", "Image", "Graphs"]
+        }
+      },
+
+      {
+        "order": 6,
+        "id": "task08",
+        "name": "Visualize data trend",
+        "origin": ["task01", "task02"],
+        "features": {
+          "function": ["Numeric", "Image", "Graphs"]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "usecase": {
+    "id": "uc001",
+    "name": "plug&analyze",
+    "domain": "Condition Monitoring & Process Control",
+    "system_components": [
+      {
+        "id": "plc001",
+        "name": "Siemens plc",
+        "component_type": "Siemens PLC",
+        "short_description": "Siemens PLC",
+        "features": {
+          "protocols": ["S7", "Profinet/IO"],
+          "data_types": ["time-series"],
+          "visualization_charts": [],
+          "performance": [
+            {
+              "type": "cycle_time",
+              "value": 100,
+              "unit": "ms"
+            },
+            {
+              "type": "throughput",
+              "value": 1000,
+              "unit": "tags/s"
+            },
+            {
+              "type": "latency",
+              "value": 100,
+              "unit": "ms"
+            }
+          ]
+        }
+      },
+      {
+        "id": "plc002",
+        "name": "Rockwell PLC",
+        "component_type": "Rockwell PLC",
+        "short_description": "Rockwell PLC",
+        "features": {
+          "protocols": ["OPC-UA"],
+          "data_types": ["time-series"],
+          "visualization_charts": []
+        }
+      },
+      {
+        "id": "sensor001",
+        "name": "temperature meter",
+        "component_type": "Temperature Meter",
+        "short_description": "data source where we read data from",
+        "features": {
+          "protocols": ["MQTT"],
+          "data_types": ["time-series"]
+        }
+      },
+      {
+        "id": "database001",
+        "name": "database",
+        "component_type": "PostgreSQL",
+        "short_description": "database where we store data",
+        "features": {
+          "data_types": ["time-series"],
+          "performance": [
+            {
+              "type": "throughput",
+              "value": 100000,
+              "unit": "tags/s"
+            },
+            {
+              "type": "latency",
+              "value": 100,
+              "unit": "ms"
+            }
+          ]
+        }
+      },
+      {
+        "id": "visualization001",
+        "name": "BI",
+        "component_type": "Business Intelligent",
+        "short_description": "BI for visualization",
+        "features": {
+          "visualization_charts": ["line"]
+        }
+      }
+    ],
+    "requirements": [],
+    "task_sequence": [
+      {
+        "id": "task001",
+        "name": "Read datapoint from PLC",
+        "origin": [],
+        "order": 1,
+        "features": {
+          "source": ["plc001"]
+        }
+      },
+      {
+        "id": "task002",
+        "name": "Read data from sensor",
+        "origin": [],
+        "order": 1,
+        "features": {
+          "source": ["sensor001"]
+        }
+      },
+      {
+        "id": "task003",
+        "name": "Store data into database",
+        "order": 2,
+        "origin": ["task001"],
+        "features": {
+          "target": ["database001"]
+        }
+      },
+      {
+        "id": "task004",
+        "name": "Store data into database",
+        "order": 2,
+        "origin": ["task002"],
+        "features": {
+          "target": ["database001"]
+        }
+      },
+      {
+        "id": "task005",
+        "name": "Relabel data and forward",
+        "order": 3,
+        "origin": ["task003"]
+      },
+      {
+        "id": "task006",
+        "name": "Cause Identification",
+        "order": 4,
+        "origin": ["task004"]
+      },
+      {
+        "id": "task007",
+        "name": "Visualize data trend",
+        "order": 5,
+        "origin": ["task005"],
+        "features": {
+          "target": ["visualization001"]
+        }
+      }
+    ]
+  }
+}

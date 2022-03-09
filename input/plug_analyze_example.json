@@ -1,110 +1,111 @@
 {
-    "usecase":{
-        "id": "uc3831",
-        "name": "joe's example",
-        "domain": "Condition Monitoring & Process Control",
-        "system_components":[
-            {
-                "id":"panel01",
-                "name":"FC726",
-                "component_type":"hardware",
-                "short_description":"Modular, pre-assembled fire control panel for large applications.",
-                "features":{
-                    "protocols":["BACnet"],
-                    "data_types":["event"]
-                }
-            },
-            {
-                "id":"panel02",
-                "name":"FC18",
-                "component_type":"hardware",
-                "short_description":"fire alarm controller of Siemens Cerberus ",
-                "features":{
-                    "protocols":["FC18-BUS"],
-                    "data_types":["event"]
-                }
-            },
-            {
-                "id":"configuration",
-                "name":"FC18_726 Mapping Tools",
-                "component_type":"software",
-                "short_description":"Mapping information models",
-                "features":{
-                    "protocols":["BACnet","FC18-BUS"],
-                    "data_types":["event","command"]
-                }
-            }
-        ],
-        "requirements":{
-            "forwarding time":{
-                "value":100,
-                "unit":"ms"
-            }
-        },
-        "task_sequence":[
-
-            {
-                "order":0,
-                "id":"task01",
-                "name":"Read datapoint from panel",
-                "origin":[],
-                "features":{
-                    "source":"panel01"
-                }
-            },
-            {
-                "order":1,
-                "id":"task02",
-                "name":"Mapping events",
-                "origin":["task01"],
-                "features":{
-                    "protocol":["BACnet","FC18-BUS"]
-                }
-            },
-            {
-                "order":2,
-                "id":"task03",
-                "name":"Write datapoint to panel",
-                "origin":["task02"],
-                "features":{
-                    "protocol":["FC18-BUS"]
-                }
-            },
-            {
-                "order":3,
-                "id":"task04",
-                "name":"Read datapoint from panel",
-                "origin":[],
-                "features":{
-                    "source":"panel02"
-                }
-            },
-            {
-                "order":4,
-                "id":"task05",
-                "name":"Mapping commands",
-                "origin":["task04"],
-                "features":{
-                    "protocol":["FC18-BUS","BACnet"]
-                }
-            },{
-                "order":5,
-                "id":"task06",
-                "name":"Write datapoint to panel",
-                "origin":["task05"],
-                "features":{
-                    "protocol":["BACnet"]
-                }
-            },
-            {
-                "order":5,
-                "id":"task07",
-                "name":"Visualize event",
-                "origin":["task01","task04"],
-                "features":{
-                    "visualization":["pie-chart"]
-                }
-            }
-        ]
-    }
+  "usecase": {
+    "id": "uc3831",
+    "name": "joe's example",
+    "domain": "Condition Monitoring & Process Control",
+    "system_components": [
+      {
+        "id": "panel01",
+        "name": "FC726",
+        "component_type": "hardware",
+        "short_description": "Modular, pre-assembled fire control panel for large applications.",
+        "features": {
+          "protocols": ["BACnet"],
+          "data_types": ["event"]
+        }
+      },
+      {
+        "id": "panel02",
+        "name": "FC18",
+        "component_type": "hardware",
+        "short_description": "fire alarm controller of Siemens Cerberus ",
+        "features": {
+          "protocols": ["FC18-BUS"],
+          "data_types": ["event"]
+        }
+      },
+      {
+        "id": "configuration",
+        "name": "FC18_726 Mapping Tools",
+        "component_type": "software",
+        "short_description": "Mapping information models",
+        "features": {
+          "protocols": ["BACnet", "FC18-BUS"],
+          "data_types": ["event", "command"]
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "type": "forwarding_time",
+        "value": 100,
+        "unit": "ms"
+      }
+    ],
+    "task_sequence": [
+      {
+        "order": 0,
+        "id": "task01",
+        "name": "Read datapoint from panel",
+        "origin": [],
+        "features": {
+          "source": ["panel01"]
+        }
+      },
+      {
+        "order": 1,
+        "id": "task02",
+        "name": "Mapping events",
+        "origin": ["task01"],
+        "features": {
+          "protocol": ["BACnet", "FC18-BUS"]
+        }
+      },
+      {
+        "order": 2,
+        "id": "task03",
+        "name": "Write datapoint to panel",
+        "origin": ["task02"],
+        "features": {
+          "protocol": ["FC18-BUS"]
+        }
+      },
+      {
+        "order": 3,
+        "id": "task04",
+        "name": "Read datapoint from panel",
+        "origin": [],
+        "features": {
+          "source": ["panel02"]
+        }
+      },
+      {
+        "order": 4,
+        "id": "task05",
+        "name": "Mapping commands",
+        "origin": ["task04"],
+        "features": {
+          "protocol": ["FC18-BUS", "BACnet"]
+        }
+      },
+      {
+        "order": 5,
+        "id": "task06",
+        "name": "Write datapoint to panel",
+        "origin": ["task05"],
+        "features": {
+          "protocol": ["BACnet"]
+        }
+      },
+      {
+        "order": 5,
+        "id": "task07",
+        "name": "Visualize event",
+        "origin": ["task01", "task04"],
+        "features": {
+          "visualization": ["pie-chart"]
+        }
+      }
+    ]
+  }
 }

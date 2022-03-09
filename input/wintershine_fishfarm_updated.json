@@ -1,0 +1,250 @@
+{
+  "usecase": {
+    "id": "uc1801",
+    "name": "Wintershine Fishfarm",
+    "domain": "Condition Monitoring & Process Control",
+    "system_components": [
+      {
+        "id": "plc01",
+        "name": "S7 PLC 1500",
+        "component_type": "hardware",
+        "description": "S7 PLC 1500 for fishfarm usecase",
+        "features": {
+          "protocols": ["S7"],
+          "i/p_data_types": ["time-series"],
+          "o/p_data_types": ["control"]
+        }
+      },
+      {
+        "id": "ext_hw01",
+        "name": "NVIDIA JETSON",
+        "component_type": "hardware",
+        "description": "External Hardware for training and inferecing of ML",
+        "features": {
+          "protocols": ["CAN", "Ethernet/IP"],
+          "i/p_data_types": ["image", "time-series"],
+          "o/p_data_types": ["control"]
+        }
+      },
+      {
+        "id": "sensor01",
+        "name": "ZED Mini Depth",
+        "component_type": "hardware",
+        "description": " Ultra-Depth mode for the ZED Mini to ensure accurate motion tracking of fish in the tank",
+        "features": {
+          "protocols": ["RTSP"],
+          "i/p_data_types": [],
+          "o/p_data_types": ["video"]
+        }
+      },
+      {
+        "id": "sensor02",
+        "name": "Energy Meter",
+        "component_type": "hardware",
+        "description": "Energy Meter to measure energy usage in the fish tank",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "i/p_data_types": [],
+          "o/p_data_types": ["time-series"]
+        }
+      },
+      {
+        "id": "sensor03",
+        "name": "DO Meter",
+        "component_type": "hardware",
+        "description": "DO Meter",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "i/p_data_types": [],
+          "o/p_data_types": ["time-series"]
+        }
+      },
+      {
+        "id": "sensor04",
+        "name": "Flow Meter",
+        "component_type": "hardware",
+        "description": "Flow Meter to measure the flow rate in the fish tank",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "i/p_data_types": [],
+          "o/p_data_types": ["time-series"]
+        }
+      },
+      {
+        "id": "sensor05",
+        "name": "Temperature Sensor",
+        "component_type": "hardware",
+        "description": "Measure the temperature ",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "i/p_data_types": [],
+          "o/p_data_types": ["time-series"]
+        }
+      },
+      {
+        "id": "actuator01",
+        "name": "Feeder",
+        "component_type": "hardware",
+        "description": "To feed food to fish in tank",
+        "features": {
+          "protocols": ["Ethernet/IP"],
+          "i/p_data_types": ["control"],
+          "o/p_data_types": []
+        }
+      },
+      {
+        "id": "cloud01",
+        "name": "AWS Cloud",
+        "component_type": "cloud",
+        "description": "AWS Cloud for data storage",
+        "features": {
+          "protocols": ["MQTT", "HTTP"],
+          "i/p_data_types": ["image", "video", "time-series"],
+          "o/p_data_types": []
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "type": "loop_time",
+        "value": 100,
+        "unit": "ms"
+      },
+      {
+        "type": "cpu_load",
+        "value": 0.5,
+        "unit": "cores"
+      },
+      {
+        "type": "device_storage",
+        "value": 30,
+        "unit": "GB"
+      }
+    ],
+    "task_sequence": [
+      {
+        "order": 0,
+        "id": "task01",
+        "name": "Read datapoint from PLC",
+        "origin": [],
+        "features": {
+          "source": ["plc01"],
+          "trigger": ["software"]
+        }
+      },
+      {
+        "order": 0,
+        "id": "task02",
+        "name": "Read Video data",
+        "origin": [],
+        "features": {
+          "source": ["sensor01"],
+          "trigger": ["software"]
+        }
+      },
+
+      {
+        "order": 1,
+        "id": "task03",
+        "name": "Process the video data",
+        "origin": ["task02"],
+        "features": {
+          "function": "slicing the video"
+        }
+      },
+      {
+        "order": 2,
+        "id": "task04",
+        "name": "Write image data to file",
+        "origin": ["task03"],
+        "features": {}
+      },
+      {
+        "order": 3,
+        "id": "task05",
+        "name": "Upload file to cloud",
+        "origin": ["task04"],
+        "properties": {
+          "target": ["cloud01"],
+          "protocol": "HTTP"
+        }
+      },
+
+      {
+        "order": 3,
+        "id": "task06",
+        "name": "Process the Image data",
+        "origin": ["task03"],
+        "features": {
+          "function": "Object Detection"
+        }
+      },
+      {
+        "order": 2,
+        "id": "task07",
+        "name": "Process the Image data",
+        "origin": ["task03"],
+        "features": {
+          "function": "Object Counting"
+        }
+      },
+      {
+        "order": 3,
+        "id": "task08",
+        "name": "Train the Model",
+        "origin": ["task07"],
+        "features": {
+          "function": "Image Classification",
+          "target": ["ext_hw01"]
+        }
+      },
+      {
+        "order": 4,
+        "id": "task09",
+        "name": "Run the ML Model",
+        "origin": ["task08"],
+        "features": {
+          "function": "Image Classification",
+          "source": ["ext_hw01"]
+        }
+      },
+
+      {
+        "order": 5,
+        "id": "task10",
+        "name": "Get the control singal",
+        "origin": ["task01", "task09"],
+        "features": {}
+      },
+
+      {
+        "order": 6,
+        "id": "task11",
+        "name": "Write datapoint to PLC",
+        "origin": ["task10"],
+        "features": {
+          "target": ["plc01"]
+        }
+      },
+      {
+        "order": 7,
+        "id": "task12",
+        "name": "Visualize data sample",
+        "origin": ["task10", "task09", "task10"],
+        "properties": {
+          "visualization": ["line-chart", "Numeric", "video_streams", "graphs"]
+        }
+      },
+
+      {
+        "order": 7,
+        "id": "task13",
+        "name": "Visualize data trend",
+        "origin": ["task01", "task10"],
+        "properties": {
+          "visualization": ["line-chart"]
+        }
+      }
+    ]
+  }
+}
