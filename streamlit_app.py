@@ -18,61 +18,83 @@ resource = {"IEVD":{"cpu":100,"memory":100,"flash":100},
 }
 
 
-cpu_usage_value = 50
-memory_usage_value = 50
-flash_usage_value = 50
-st.header("Resurce:")
-st.write('cpu usage:')
-cpu_usage_percent = st.progress(cpu_usage_value/resource[hardware]["cpu"])
-st.write('memory usage:')
-memory_usage_percent = st.progress(memory_usage_value/resource[hardware]["memory"])
-st.write('flash usage:')
-flash_usage_percent = st.progress(flash_usage_value/resource[hardware]["flash"])
+cpu_usage_value = 0
+memory_usage_value = 0
+flash_usage_value = 0
+# st.write('cpu usage:')
+# cpu_usage_percent = st.progress(cpu_usage_value/resource[hardware]["cpu"])
+# st.write('memory usage:')
+# memory_usage_percent = st.progress(memory_usage_value/resource[hardware]["memory"])
+# st.write('flash usage:')
+# flash_usage_percent = st.progress(flash_usage_value/resource[hardware]["flash"])
+
 
 
 st.header("Application:")
-Optimized_S7 = st.checkbox('Optimized S7')
-Optimized_S7_Connections = st.selectbox(
-     'Connections?',
-     (1,8),key=1)
-Optimized_S7_Aquisition_Cycle = st.selectbox(
-     'Aquisition Cycle?',
-     (100,500),
-     key=2)
-Optimized_S7_tags = st.select_slider(
-     'Tags',
-     options=[600,800,1000,1200,1400,1600,1800,2000],
-     key=3)
+with st.expander("Optimized S7"):
+     Optimized_S7 = st.checkbox('Optimized S7')
+     Optimized_S7_Connections = st.selectbox(
+          'Connections?',
+          (1,8),
+          key=1,disabled=not Optimized_S7)
 
-OPC_UA = st.checkbox('OPC UA')
-OPC_UA_Connections = st.selectbox(
-     'Connections?',
-     (1,8),
-     key=4)
-OPC_UA_Aquisition_Cycle = st.selectbox(
-     'Aquisition Cycle?',
-     (100,500),
-     key=5)
-OPC_UA_tags = st.select_slider(
-     'Tags',
-     options=[600,800,1000,1200,1400,1600,1800,2000],key = 6)
+     if Optimized_S7:
+          cpu_usage_value=cpu_usage_value+Optimized_S7_Connections*5
+          memory_usage_value = memory_usage_value+Optimized_S7_Connections*5
+          flash_usage_value = flash_usage_value+Optimized_S7_Connections*5
 
-# col1, col2, col3 , col4, col5= st.columns(5)
+     Optimized_S7_Aquisition_Cycle = st.selectbox(
+          'Aquisition Cycle?',
+          (100,500),
+          key=2,disabled=not Optimized_S7)
+     if Optimized_S7:
+          cpu_usage_value=cpu_usage_value+Optimized_S7/10
+          memory_usage_value = memory_usage_value+Optimized_S7/10
+          flash_usage_value = flash_usage_value+Optimized_S7/10
 
-# with col1:
-    
-#     st.button('IEVD')
+     Optimized_S7_tags = st.select_slider(
+          'Tags',
+          options=[600,800,1000,1200,1400,1600,1800,2000],
+          key=3,disabled=not Optimized_S7)
 
-# with col2:
-#     st.image("https://www.distec.co.uk/wp-content/uploads/2019/11/Siemens-SIMATIC-IPC127E-480x395.jpg")
-#     st.button('IPC 127E')
+     if Optimized_S7:
+          cpu_usage_value=cpu_usage_value+Optimized_S7_tags/100
+          memory_usage_value = memory_usage_value+Optimized_S7_tags/100
+          flash_usage_value = flash_usage_value+Optimized_S7_tags/100
+with st.expander("OPC UA"):
+     OPC_UA = st.checkbox('OPC UA')
+     OPC_UA_Connections = st.selectbox(
+          'Connections?',
+          (1,8),
+          key=4,disabled=not OPC_UA)
+     if OPC_UA:
+          cpu_usage_value=cpu_usage_value+OPC_UA_Connections*6
+          memory_usage_value = memory_usage_value+OPC_UA_Connections*6
+          flash_usage_value = flash_usage_value+OPC_UA_Connections*6
 
-# with col3:
-#     st.image("https://www.distec.co.uk/wp-content/uploads/2019/11/Siemens-SIMATIC-IPC227E-480x395.jpg")
-#     st.button('IPC 227E')
-# with col4:
-#     st.image("https://www.distec.co.uk/wp-content/uploads/2019/11/Siemens-SIMATIC-IPC427E-480x395.jpg")
-#     st.button('IPC 427E')
-# with col5:
-#     st.image("https://www.distec.co.uk/wp-content/uploads/2019/11/Siemens-SIMATIC-IPC847E-480x395.jpg")
-#     st.button('IPC 847E')
+     OPC_UA_Aquisition_Cycle = st.selectbox(
+          'Aquisition Cycle?',
+          (80,640),
+          key=5,disabled=not OPC_UA)
+     if OPC_UA:
+          cpu_usage_value=cpu_usage_value+OPC_UA_Aquisition_Cycle/8
+          memory_usage_value = memory_usage_value+OPC_UA_Aquisition_Cycle/8
+          flash_usage_value = flash_usage_value+OPC_UA_Aquisition_Cycle/8
+
+     OPC_UA_tags = st.select_slider(
+          'Tags',
+          options=[500,1000,1500,2000],
+          key = 6,disabled=not OPC_UA)
+     if OPC_UA:
+          cpu_usage_value=cpu_usage_value+OPC_UA_tags/50
+          memory_usage_value = memory_usage_value+OPC_UA_tags/50
+          flash_usage_value = flash_usage_value+OPC_UA_tags/50
+
+     with st.sidebar:
+          st.header("Resurce:")
+
+          st.metric("CPU", cpu_usage_value/resource[hardware]["cpu"])
+          st.metric("Memory", memory_usage_value/resource[hardware]["memory"])
+          st.metric("Flash", flash_usage_value/resource[hardware]["flash"])
+          if cpu_usage_value/resource[hardware]["cpu"] > 1 or  cpu_usage_value/resource[hardware]["memory"]> 1 or flash_usage_value/resource[hardware]["flash"]>1:
+               st.warning("Hardware resource overload! Suggest change a powerful machine!")
