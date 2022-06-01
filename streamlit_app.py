@@ -1,63 +1,78 @@
-from re import L
 import streamlit as st
-import graphviz as graphviz
-import json
-import test_schema
-import os
+st.header("Configuration:")
+uploaded_files = st.file_uploader("Choose a CSV file", accept_multiple_files=True)
+for uploaded_file in uploaded_files:
+     bytes_data = uploaded_file.read()
+     st.write("filename:", uploaded_file.name)
+     st.write(bytes_data)
 
-def get_example_usecases():
-    file_list=[]
-    for root,dirs,files in os.walk(r"./input"):
-        file_list.extend(files)
-    return file_list
+st.header("Hardware type:")
+st.write('<style>div.row-widget.stRadio > div{flex-direction:row;} </style>', unsafe_allow_html=True)
+hardware = st.radio("Which hardware do you want to deploy the applications?",('IEVD', 'IPC 127E', 'IPC 227E', 'IPC 427E', 'IPC 847E'))
 
-print(get_example_usecases())
-def draw_dataflow(task_seq):
-    if task_seq is not None:
-        graph = graphviz.Digraph()
-        for task_index in range(len(task_seq)):
-            task = task_seq[task_index]
-            origin = task["origin"]
-            if len(origin)>0:
-                if isinstance (origin,list):
-                    for origin_index in range(len(origin)):
-                         graph.edge(origin[origin_index], task["id"],task["name"])
-                else:
-                    graph.edge(origin, task["id"],task["name"])
-            if "features" in task.keys() and "source" in task["features"].keys():
-                graph.node(str(task["features"]["source"]),shape='box')
-                graph.edge(str(task["features"]["source"]), task["id"],task["name"])
-            if "features" in task.keys() and "target" in task["features"].keys():
-                graph.node(str(task["features"]["target"]),shape='box')
-                graph.edge(task["id"],str(task["features"]["target"]))
-                         
-        st.graphviz_chart(graph)
-            
+resource = {"IEVD":{"cpu":100,"memory":100,"flash":100},
+"IPC 127E":{"cpu":200,"memory":200,"flash":200},
+"IPC 227E":{"cpu":300,"memory":300,"flash":300},
+"IPC 427E":{"cpu":400,"memory":400,"flash":400},
+"IPC 847E":{"cpu":500,"memory":500,"flash":500}
+}
 
-st.header("Use Case to Data Flow")
-usecase_file = st.file_uploader("choose a local use case JSON file")
-file_name = st.selectbox("or use example use cases",options=get_example_usecases(),index=0)
 
-usecase_str =""
-if usecase_file is not None:
-    usecase_str = usecase_file.read().decode("utf-8")
+cpu_usage_value = 50
+memory_usage_value = 50
+flash_usage_value = 50
+st.header("Resurce:")
+st.write('cpu usage:')
+cpu_usage_percent = st.progress(cpu_usage_value/resource[hardware]["cpu"])
+st.write('memory usage:')
+memory_usage_percent = st.progress(memory_usage_value/resource[hardware]["memory"])
+st.write('flash usage:')
+flash_usage_percent = st.progress(flash_usage_value/resource[hardware]["flash"])
 
-if usecase_file is None and file_name is not None:
-    with open('./input/'+file_name, 'r') as f:
-        usecase_str = f.read()
 
-col1, col2 = st.columns(2)
-if usecase_str is not None:
-    with col1:
-        usecase_dict = json.loads(usecase_str)
-        #todo: json schema validate
-        schema = test_schema.get_schema("./joe_schema.json")
-        is_valid, msg = test_schema.validate_json(schema,usecase_dict)
-        if is_valid:
-            task_sequence = usecase_dict["usecase"]["task_sequence"]
-            st.json(task_sequence)
-        else:
-            st.error("Given JSON data is InValid")
-            st.error(msg)
-    with col2:    
-        draw_dataflow(task_sequence)
+st.header("Application:")
+Optimized_S7 = st.checkbox('Optimized S7')
+Optimized_S7_Connections = st.selectbox(
+     'Connections?',
+     (1,8),key=1)
+Optimized_S7_Aquisition_Cycle = st.selectbox(
+     'Aquisition Cycle?',
+     (100,500),
+     key=2)
+Optimized_S7_tags = st.select_slider(
+     'Tags',
+     options=[600,800,1000,1200,1400,1600,1800,2000],
+     key=3)
+
+OPC_UA = st.checkbox('OPC UA')
+OPC_UA_Connections = st.selectbox(
+     'Connections?',
+     (1,8),
+     key=4)
+OPC_UA_Aquisition_Cycle = st.selectbox(
+     'Aquisition Cycle?',
+     (100,500),
+     key=5)
+OPC_UA_tags = st.select_slider(
+     'Tags',
+     options=[600,800,1000,1200,1400,1600,1800,2000],key = 6)
+
+# col1, col2, col3 , col4, col5= st.columns(5)
+
+# with col1:
+    
+#     st.button('IEVD')
+
+# with col2:
+#     st.image("https://www.distec.co.uk/wp-content/uploads/2019/11/Siemens-SIMATIC-IPC127E-480x395.jpg")
+#     st.button('IPC 127E')
+
+# with col3:
+#     st.image("https://www.distec.co.uk/wp-content/uploads/2019/11/Siemens-SIMATIC-IPC227E-480x395.jpg")
+#     st.button('IPC 227E')
+# with col4:
+#     st.image("https://www.distec.co.uk/wp-content/uploads/2019/11/Siemens-SIMATIC-IPC427E-480x395.jpg")
+#     st.button('IPC 427E')
+# with col5:
+#     st.image("https://www.distec.co.uk/wp-content/uploads/2019/11/Siemens-SIMATIC-IPC847E-480x395.jpg")
+#     st.button('IPC 847E')
