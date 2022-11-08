@@ -74,7 +74,7 @@ def main():
         key="self",
         mode=WebRtcMode.SENDRECV,
         rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-        media_stream_constraints={"video": True, "audio": True},
+        media_stream_constraints={"video": True, "audio": False},
         source_video_track=mix_track,
         sendback_audio=False,
     )
@@ -103,7 +103,7 @@ def main():
             rtc_configuration={
                 "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
             },
-            media_stream_constraints={"video": False, "audio": True},
+            media_stream_constraints={"video": True, "audio": False},
             source_audio_track=ctx.input_audio_track,
             desired_playing_state=ctx.state.playing,
         )
