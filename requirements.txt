@@ -3,3 +3,4 @@ streamlit
 jsonschema
 streamlit-webrtc
 opencv-python-headless
+streamlit-server-state
