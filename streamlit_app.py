@@ -6,7 +6,7 @@ import streamlit as st
 #      st.write("filename:", uploaded_file.name)
 #      st.write(bytes_data)
 
-st.header("Hardware type:")
+st.header("Hardware type:123")
 st.write('<style>div.row-widget.stRadio > div{flex-direction:row;} </style>', unsafe_allow_html=True)
 hardware = st.radio("Which hardware do you want to deploy the applications?",('IEVD', 'IPC 127E', 'IPC 227E', 'IPC 427E', 'IPC 847E'))
 
