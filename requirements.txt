@@ -1,6 +1,3 @@
-graphviz
+st_aggrid
 streamlit
-jsonschema
-streamlit-webrtc
-opencv-python-headless
-streamlit-server-state
+pandas
