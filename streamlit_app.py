@@ -22,17 +22,18 @@ def merge_sheets(filename):
     dfs = [xls.parse(index)for index in filtered_items]
     return pd.concat(dfs,ignore_index = True)
 
-if "controller_changed" not in st.session_state:
-    st.session_state["controller_changed"] = {}
-if "p2_changed" not in st.session_state:
-    st.session_state["p2_changed"] = {}
-if "linkage_changed" not in st.session_state:
-    st.session_state["linkage_changed"] = {}
+if "controller_de_changed" not in st.session_state:
+    st.session_state["controller_de_changed"] = {}
+if "p2_de_changed" not in st.session_state:
+    st.session_state["p2_de_changed"] = {}
+if "linkage_de_changed" not in st.session_state:
+    st.session_state["linkage_de_changed"] = {}
 
-increment = 2
+def onChange(key):
+    st.session_state[key+"_changed"].update(st.session_state[key]["edited_rows"])
 
+increment = 1
 if uploaded_file is not None:
-
     options = st.multiselect('选择需要转换的类型',['控制器节点', 'P2设备', '联动盘']) 
 ##############################################
     df_controler = load_sheet(uploaded_file.name, '控制器')
@@ -44,16 +45,11 @@ if uploaded_file is not None:
         st.header("控制器")
         controller_start_value = st.number_input('Insert base address', value=10000)
         df_controler["Modbus"] = list(range(controller_start_value, controller_start_value + controler_rows * increment, increment))
-        for key in st.session_state["controller_changed"]:
-            df_controler["Modbus"][key] = st.session_state["controller_changed"][key]["Modbus"]
-
-        controller_result = st.data_editor(df_controler, use_container_width=True, key="controller_de", disabled=[0, 1, 2, 3, 4, 5, 6])
-        st.session_state["controller_changed"].update(st.session_state.controller_de["edited_rows"])
-        if len(st.session_state["controller_changed"]):
-            st.write("manually changed cells:")
-            st.json(st.session_state["controller_changed"])
+        for key in st.session_state["controller_de_changed"]:
+            df_controler.loc[key, "Modbus"] = st.session_state["controller_de_changed"][key]["Modbus"]
+        controller_result = st.data_editor(df_controler, use_container_width=True, key="controller_de", disabled=[0, 1, 2, 3, 4, 5, 6],on_change=onChange,args=["controller_de"])
         pd_list_result.append(controller_result)
-##############################################
+# ##############################################
     df_loop = load_sheet(uploaded_file.name, '回路')
     df_detect_loop = df_loop[df_loop['类型'].str.contains('探测总线')]
     result_tuples = df_detect_loop.apply(lambda row: (row['系统地址'], row['控制器地址'], row['回路地址']), axis=1)
@@ -66,13 +62,9 @@ if uploaded_file is not None:
         st.header("P2设备")
         p2_start_value = st.number_input('Insert base address', value=20000)
         df_p2["Modbus"] = list(range(p2_start_value, p2_start_value + p2_rows * increment, increment))
-        for key in st.session_state["p2_changed"]:
-            df_p2["Modbus"][key] = st.session_state["p2_changed"][key]["Modbus"]
-        p2_result = st.data_editor(df_p2, use_container_width=True,key="p2_de",disabled=[0, 1, 2, 3, 4, 5, 6])
-        st.session_state["p2_changed"].update(st.session_state.p2_de["edited_rows"])
-        if len(st.session_state["p2_changed"])>0:
-            st.write("manually changed cells:")
-            st.json(st.session_state["p2_changed"])
+        for key in st.session_state["p2_de_changed"]:
+            df_p2.loc[key, "Modbus"] = st.session_state["p2_de_changed"][key]["Modbus"]
+        p2_result = st.data_editor(df_p2, use_container_width=True,key="p2_de",disabled=[0, 1, 2, 3, 4, 5, 6],on_change=onChange,args=["p2_de"])
         pd_list_result.append(p2_result)
 ##############################################
     df_linkage = mergedf[(mergedf["回路地址"] == 33) & (mergedf['类型'].str.contains('联动盘'))]
@@ -84,13 +76,10 @@ if uploaded_file is not None:
         st.header("联动盘")
         linkage_start_value = st.number_input('Insert base address', value=30000)
         df_linkage["Modbus"] = list(range(linkage_start_value, linkage_start_value + linkage_rows * increment, increment))
-        for key in st.session_state["linkage_changed"]:
-            df_linkage["Modbus"][key] = st.session_state["linkage_changed"][key]["Modbus"]
-        linkage_result = st.data_editor(df_linkage, use_container_width=True,key="linkage_de",disabled=[0, 1, 2, 3, 4, 5, 6])
-        st.session_state["linkage_changed"].update(st.session_state.linkage_de["edited_rows"])
-        if len(st.session_state["linkage_changed"])>0:
-            st.write("manually changed cells:")
-            st.json(st.session_state["linkage_changed"])
+        for key in st.session_state["linkage_de_changed"]:
+            df_linkage.loc[key, "Modbus"] = st.session_state["linkage_de_changed"][key]["Modbus"]
+        linkage_result = st.data_editor(df_linkage, use_container_width=True,key="linkage_de",disabled=[0, 1, 2, 3, 4, 5, 6],on_change=onChange,args=["linkage_de"])
+        st.session_state["linkage_de_changed"].update(st.session_state.linkage_de["edited_rows"])
         pd_list_result.append(linkage_result)
 ##############################################
     if len(pd_list_result) > 0:
