@@ -31,6 +31,13 @@ if "linkage_de_changed" not in st.session_state:
 
 def onChange(key):
     st.session_state[key+"_changed"].update(st.session_state[key]["edited_rows"])
+    
+def validateUnique(serie,value,index):
+
+    indexlist = serie[serie == value].index.tolist()
+    if index is not None:
+        indexlist.remove(index)
+    return indexlist
 
 increment = 1
 if uploaded_file is not None:
@@ -84,6 +91,23 @@ if uploaded_file is not None:
 ##############################################
     if len(pd_list_result) > 0:
         appended_df = pd.concat(pd_list_result, ignore_index=True)
+        with st.sidebar:
+            # st.write(appended_df)
+            st.write(st.session_state["controller_de_changed"])
+            # st.write(st.session_state["p2_de_changed"])
+            # st.write(st.session_state["linkage_de_changed"])
+            for key in st.session_state["controller_de_changed"]:
+                val = st.session_state["controller_de_changed"][key]["Modbus"]
+                ret = validateUnique(controller_result["Modbus"],val,key)
+                if len(ret)>0:
+                    st.write("controller_result["+str(key)+"],conflict with controller_result" +str(ret))
+                ret = validateUnique(p2_result["Modbus"],val,None)
+                if len(ret)>0:
+                    st.write("controller_result["+str(key)+"],conflict with p2_result" +str(ret))
+                ret = validateUnique(linkage_result["Modbus"],val,None)
+                if len(ret)>0:
+                    st.write("controller_result["+str(key)+"],conflict with linkage_result" +str(ret))
+                
         csv_result = appended_df.to_csv().encode('utf-8')
         st.download_button(
             label="Download data as CSV",
