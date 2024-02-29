@@ -29,7 +29,7 @@ with tab2:
     if project_file is not None:
         st.session_state.clear()
         content = project_file.read().decode('utf-8')
-        dict_session_state = eval(content)
+        dict_session_state = json.loads(content)
         for key, val in dict_session_state.items():
             st.session_state[key] = val
 
@@ -89,7 +89,7 @@ if st.session_state.get("uploaded_file"):
 if st.session_state.get("uploaded_file"):
     current_datetime = datetime.now()
     current_datetime_string = current_datetime.strftime("%Y%m%d%H%M")
-    hostsstr = json.dumps(st.session_state['export_configs'],indent=2)
+    hostsstr = json.dumps(st.session_state['export_configs'],indent=2,ensure_ascii=False)
     st.download_button( label="导出Hosts配置文件",  
                         data=hostsstr.encode('utf-8'),
                         file_name=st.session_state['uploaded_file'].split(".")[0]+'_hosts_'+current_datetime_string+'.json'

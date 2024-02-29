@@ -60,11 +60,11 @@ increment = 1
 with st.sidebar:
     current_datetime = datetime.now()
     current_datetime_string = current_datetime.strftime("%Y%m%d%H%M")
-
+    session_states_str = json.dumps(st.session_state.to_dict(),indent=2,ensure_ascii=False)
     if st.session_state.get('uploaded_file'):
         st.download_button( label="导出工程",  
-                            data=str(st.session_state.to_dict()).encode('utf-8'),
-                            file_name=st.session_state['uploaded_file'].split(".")[0]+'_'+current_datetime_string+'.proj'
+                            data=session_states_str.encode('utf-8'),
+                            file_name=st.session_state['uploaded_file'].split(".")[0]+'_'+current_datetime_string+'.json'
                             )
     
 
