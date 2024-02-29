@@ -86,6 +86,9 @@ if len(hosts_options):
             panels_tuples = df_controler.apply(lambda row: (row['系统地址'], row['控制器地址']), axis=1)
             df_controler = df_controler.iloc[:, [0, 1, 2, 3, 4, 5, 6]]
             df_controler.rename(columns={'IP地址': '回路地址', '子网掩码': '点地址', '默认网关': '通道地址'}, inplace=True)
+            df_controler['回路地址'] = 0
+            df_controler['点地址'] = 0
+            df_controler['通道地址'] = 0
             df_controler = df_controler.reset_index(drop=True) # make sure index is unique
             controler_rows, columns = df_controler.shape
 

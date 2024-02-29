@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import json
+from datetime import datetime
+
 st.set_page_config(layout="wide")
 
 # how-to-keep-widget-value-remembered-in-multi-page-app
@@ -82,7 +84,13 @@ if st.session_state.get("uploaded_file"):
                 "panels": st.session_state[host+"_panel_multiselect_key"]
             }
 
-    # st.session_state['export_configs']["file"] = st.session_state.uploaded_file.name
+# st.write(st.session_state['export_configs'])
 
-
-st.sidebar.write(st.session_state)
+if st.session_state.get("uploaded_file"):
+    current_datetime = datetime.now()
+    current_datetime_string = current_datetime.strftime("%Y%m%d%H%M")
+    hostsstr = json.dumps(st.session_state['export_configs'],indent=2)
+    st.download_button( label="导出Hosts配置文件",  
+                        data=hostsstr.encode('utf-8'),
+                        file_name=st.session_state['uploaded_file'].split(".")[0]+'_hosts_'+current_datetime_string+'.json'
+                        )
