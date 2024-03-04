@@ -167,4 +167,4 @@ if st.session_state.get("uploaded_file"):
                         data=hostsstr.encode('utf-8'),
                         file_name=st.session_state['uploaded_file'].split(".")[0]+'_hosts_'+current_datetime_string+'.json'
                         )
-# st.sidebar.write(st.session_state) 
+st.sidebar.write(st.session_state) 
