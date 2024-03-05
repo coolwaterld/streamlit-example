@@ -159,7 +159,7 @@ if st.session_state.get("uploaded_file"):
 
 # st.write(st.session_state['export_configs'])
 
-if st.session_state.get("uploaded_file"):
+if st.session_state.get("uploaded_file") and st.session_state.get("export_configs"):
     current_datetime = datetime.now()
     current_datetime_string = current_datetime.strftime("%Y%m%d%H%M")
     hostsstr = json.dumps(st.session_state['export_configs'],indent=2,ensure_ascii=False)
