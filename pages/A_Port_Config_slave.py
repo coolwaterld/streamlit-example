@@ -35,7 +35,7 @@ for host in hosts_options:
           
 
 def get_next_salve_index(host):
-    print(st.session_state[host])
+    # print(st.session_state[host])
     if len(st.session_state[host]['indexs'])==0:
         return 0
     else:
