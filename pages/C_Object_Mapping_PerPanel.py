@@ -65,7 +65,11 @@ with st.sidebar:
                             )
     
 
-hosts_options = list(st.session_state['export_configs']["hosts"].keys())
+if st.session_state.get('export_configs') and st.session_state['export_configs'].get("hosts"):
+    hosts_options = list(st.session_state['export_configs']["hosts"].keys())
+else:
+    hosts_options = []
+    
 if len(hosts_options):
     tabs= st.tabs(hosts_options)
     for i, tab in enumerate(tabs):
