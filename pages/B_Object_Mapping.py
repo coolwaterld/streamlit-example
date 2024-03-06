@@ -145,8 +145,8 @@ if st.session_state.get('uploaded_file'):
     df_panels,df_loops = domain_load_panels_loops(file_name)
 else:
     file_name = ""
-    df_panels = pd.dataframe()
-    df_loops = pd.dataframe()
+    df_panels = pd.DataFrame()
+    df_loops = pd.DataFrame()
 
 
 if st.session_state.get('export_configs') and st.session_state['export_configs'].get("hosts"):
