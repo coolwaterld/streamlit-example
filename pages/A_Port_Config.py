@@ -82,19 +82,15 @@ with tab1:
         if st.session_state.get("uploaded_file") and st.session_state.get("uploaded_file") != tmp_file.name:
             st.session_state.clear()
             st.session_state["hosts_multiselect_key"]=[]
-        st.session_state["uploaded_file"] = tmp_file.name
 with tab2:
     project_file = st.file_uploader("导入工程文件")
     if project_file is not None:
         st.session_state.clear()
         content = project_file.read().decode('utf-8')
-        dict_session_state = json.loads(content)
+        dict_session_state = eval(content)
         for key, val in dict_session_state.items():
-            st.session_state[key] = val
-
-
-
-
+            if not key.endswith('__do_not_persist'):
+                st.session_state[key] = val
 
 if st.session_state.get("uploaded_file"):
     st.write("当前加载的文件：",st.session_state.get("uploaded_file"))
@@ -167,4 +163,4 @@ if st.session_state.get("uploaded_file") and st.session_state.get("export_config
                         data=hostsstr.encode('utf-8'),
                         file_name=st.session_state['uploaded_file'].split(".")[0]+'_hosts_'+current_datetime_string+'.json'
                         )
-st.sidebar.write(st.session_state) 
+# st.sidebar.write(st.session_state) 

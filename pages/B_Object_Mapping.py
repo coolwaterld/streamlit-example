@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
-import json
+# import json
 from datetime import datetime
 
 st.set_page_config(layout="wide")
 
 # how-to-keep-widget-value-remembered-in-multi-page-app
 for key, val in st.session_state.items():
-    if not key.endswith('_dataeditor_key'):
+    if not key.endswith('__do_not_persist'):
         st.session_state[key] = val
 
 ###########################data ############################
@@ -114,7 +114,7 @@ def modbus_editor(df,host,slave,type):
     st.caption("🟠"+type)
     base_address = st.number_input('Modbus基地址', value=modbus_base_address[type],key=host+slave+type+"_numberinput_key")
     df_result = st.data_editor(df,use_container_width=True,
-                                key=host+slave+type+"_dataeditor_key",
+                                key=host+slave+type+"_dataeditor_key_"+"__do_not_persist",
                                 hide_index = True,
                                 num_rows='dynamic')
     # st.write("当前的结果：",df_result)
@@ -136,6 +136,16 @@ def dispay_tab(type,type_option,pd_dict_result):
         if type in pd_dict_result:
             del pd_dict_result[type]
 
+with st.sidebar:
+    current_datetime = datetime.now()
+    current_datetime_string = current_datetime.strftime("%Y%m%d%H%M")
+
+    if st.session_state.get('uploaded_file'):
+        st.download_button( label="导出工程",  
+                            data=str(st.session_state.to_dict()).encode('utf-8'),
+                            file_name=st.session_state['uploaded_file'].split(".")[0]+'_'+current_datetime_string+'.proj'
+                            )
+    
 
 ###########################main################################
 
