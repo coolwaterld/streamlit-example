@@ -8,12 +8,12 @@ for key, val in st.session_state.items():
         st.session_state[key] = val
 
 #st.page_link("FS30i_MODBUS_CONFIG.py", label="Home", icon="🏠")
-st.page_link("pages/A_Port_Config_slave.py", label="FS 30i Port Config", icon="1️⃣")
+st.header("FS 30i Port Config")
 st.caption("1. 选择要加载的FS30i配置文件")
 st.caption("2. 选择需要映射的硬件端口")
 st.caption("3. 配置硬件端口")
 st.caption("4. 选择在当前端口中要使能的Panel")
-st.page_link("pages/C_Object_Mapping_PerPanel.py", label="FS 30i Object Mapping", icon="2️⃣")
+st.header("FS 30i Object Mapping")
 st.caption("1. 选择要映射Modbus的要硬件端口")
 st.caption("2. 选择需要映射类型")
 st.caption("3. 配置类型的基地址")
