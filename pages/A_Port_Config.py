@@ -82,6 +82,7 @@ with tab1:
         if st.session_state.get("uploaded_file") and st.session_state.get("uploaded_file") != tmp_file.name:
             st.session_state.clear()
             st.session_state["hosts_multiselect_key"]=[]
+        st.session_state["uploaded_file"] = tmp_file.name
 with tab2:
     project_file = st.file_uploader("导入工程文件")
     if project_file is not None:
@@ -91,6 +92,15 @@ with tab2:
         for key, val in dict_session_state.items():
             if not key.endswith('__do_not_persist'):
                 st.session_state[key] = val
+            else:
+                new_key = key.replace('__do_not_persist', '__changed')
+                if not st.session_state.get(new_key):
+                    st.session_state[new_key] = {}
+                st.session_state[new_key].update(val)
+                # st.session_state["ETH1slave0FC30i_dataeditor_key___changed"]["edited_rows"][0]["Modbus_Offset"] = 13
+                st.write(new_key,st.session_state[new_key])
+
+
 
 if st.session_state.get("uploaded_file"):
     st.write("当前加载的文件：",st.session_state.get("uploaded_file"))
@@ -119,13 +129,13 @@ if st.session_state.get("uploaded_file"):
                     display_input_slave_row(i,panels,host)
             display_slave_button(host)
 
-            st.session_state['export_configs']["hosts"][host] = {
+            st.session_state['export_configs']["hosts"][host].update({
                 "properties": {
                     "baudrate": st.session_state[host+"_baudrate_selectbox_key"],
                     "transfmt": st.session_state[host+"_baudrate_transfmt_key"]
                 },
                 "panels": st.session_state[host]["panels"]
-            }
+            })
 
         else:
             st.text_input("IP:", key=host+"_ip_text_input_key",
@@ -142,13 +152,13 @@ if st.session_state.get("uploaded_file"):
             display_slave_button(host)
 
 
-            st.session_state['export_configs']["hosts"][host] = {
+            st.session_state['export_configs']["hosts"][host].update({
                 "properties": {
                     "IP": st.session_state[host+"_ip_text_input_key"],
                     "Port": st.session_state[host+"_port_number_input_key"]
                 },
                 "panels": st.session_state[host]["panels"]
-            }
+            })
 
     
         
@@ -163,4 +173,4 @@ if st.session_state.get("uploaded_file") and st.session_state.get("export_config
                         data=hostsstr.encode('utf-8'),
                         file_name=st.session_state['uploaded_file'].split(".")[0]+'_hosts_'+current_datetime_string+'.json'
                         )
-# st.sidebar.write(st.session_state) 
+st.sidebar.write(st.session_state["export_configs"]) 

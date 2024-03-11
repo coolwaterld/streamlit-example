@@ -25,6 +25,7 @@ modbus_base_address = {
     'Comm_Port':12300
 }
 types_options = list(modbus_base_address.keys())
+st.session_state["export_configs"]["types"] = types_options
 
 ###########################General ############################
 def find_duplicates_and_indices(lst):
@@ -113,8 +114,15 @@ def modbus_editor(df,host,slave,type):
     df["Modbus_Offset"] = range(0,rows)
     st.caption("🟠"+type)
     base_address = st.number_input('Modbus基地址', value=modbus_base_address[type],key=host+slave+type+"_numberinput_key")
+    key = host+slave+type+"_dataeditor_key_"+"__do_not_persist"
+    key_changed = host+slave+type+"_dataeditor_key_"+"__changed"
+    if st.session_state.get(key_changed):
+        for k,v in st.session_state[key_changed]["edited_rows"].items():
+            st.write(v)
+            df.at[k,"Modbus_Offset"]=1
+
     df_result = st.data_editor(df,use_container_width=True,
-                                key=host+slave+type+"_dataeditor_key_"+"__do_not_persist",
+                                key=key,
                                 hide_index = True,
                                 num_rows='dynamic')
     # st.write("当前的结果：",df_result)
@@ -206,10 +214,18 @@ else:
                             appended_df = pd.concat(list(pd_dict_result.values()), ignore_index=True)
                             st.write(slave,"最终结果：",appended_df)
                             find_duplicates_UI(appended_df["Modbus"])
-                            csv_result = appended_df.to_csv().encode('utf-8')
-                            st.download_button(
+                            csv_result = appended_df.drop(appended_df.columns[[0, 1]], axis=1).to_csv(index=False).encode('utf-8')
+                            download_file_name = st.session_state["uploaded_file"].split(".")[0]+'_'+host+'_'+slave+'.csv'
+                            ret = st.download_button(
                                 label="导出CSV文件",
                                 data=csv_result,
-                                file_name=st.session_state["uploaded_file"].split(".")[0]+'_'+host+'_'+slave+'.csv',
+                                file_name=download_file_name,
                                 mime='text/csv',
                             )
+                            if ret:
+                                if not st.session_state["export_configs"]["hosts"][host].get("files"):
+                                    st.session_state["export_configs"]["hosts"][host]["files"] = {}
+                                st.session_state["export_configs"]["hosts"][host]["files"][slave] =download_file_name
+                               
+                                   
+st.sidebar.write(st.session_state["export_configs"]) 
