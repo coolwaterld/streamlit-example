@@ -129,13 +129,21 @@ if st.session_state.get("uploaded_file"):
                     display_input_slave_row(i,panels,host)
             display_slave_button(host)
 
-            st.session_state['export_configs']["hosts"][host].update({
+            # st.session_state['export_configs']["hosts"][host].update({
+            #     "properties": {
+            #         "baudrate": st.session_state[host+"_baudrate_selectbox_key"],
+            #         "transfmt": st.session_state[host+"_baudrate_transfmt_key"]
+            #     },
+            #     "panels": st.session_state[host]["panels"]
+            # })
+            st.session_state['export_configs']["hosts"][host]= {
                 "properties": {
                     "baudrate": st.session_state[host+"_baudrate_selectbox_key"],
                     "transfmt": st.session_state[host+"_baudrate_transfmt_key"]
                 },
                 "panels": st.session_state[host]["panels"]
-            })
+            }
+
 
         else:
             st.text_input("IP:", key=host+"_ip_text_input_key",
@@ -151,14 +159,22 @@ if st.session_state.get("uploaded_file"):
 
             display_slave_button(host)
 
+            st.write(st.session_state['export_configs']["hosts"])
 
-            st.session_state['export_configs']["hosts"][host].update({
+            # st.session_state['export_configs']["hosts"][host].update({
+            #     "properties": {
+            #         "IP": st.session_state[host+"_ip_text_input_key"],
+            #         "Port": st.session_state[host+"_port_number_input_key"]
+            #     },
+            #     "panels": st.session_state[host]["panels"]
+            # })
+            st.session_state['export_configs']["hosts"][host] = {
                 "properties": {
                     "IP": st.session_state[host+"_ip_text_input_key"],
                     "Port": st.session_state[host+"_port_number_input_key"]
                 },
                 "panels": st.session_state[host]["panels"]
-            })
+            }
 
     
         
