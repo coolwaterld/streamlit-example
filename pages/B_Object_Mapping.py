@@ -46,29 +46,29 @@ def find_duplicates_and_indices(lst):
     return duplicates
 
 @st.cache_data
-def load_sheet(filename, sheetname):
-    df = pd.read_excel(filename, sheetname)
+def load_sheet(file, sheetname):
+    df = pd.read_excel(file, sheetname)
     return df
 
 #################file level###################
 
 @st.cache_data
-def domain_load_panels_loops(file_name):
+def domain_load_panels_loops(file):
     sheet_name = "控制器"
-    df_panels = load_sheet(file_name,sheet_name)
+    df_panels = load_sheet(file,sheet_name)
     # st.write("df_panels",df_panels)
 
     sheet_name = "回路"
-    df_loops = load_sheet(file_name,sheet_name)
+    df_loops = load_sheet(file,sheet_name)
     # st.write("df_loops:",df_loops)
 
     return df_panels,df_loops
 
 #################panel level###################
 @st.cache_data
-def domain_load_points(file_name,panel_id):
+def domain_load_points(file,panel_id):
     sheet_name = "点&通道_1_"+str(panel_id)
-    df_points = load_sheet(file_name,sheet_name)
+    df_points = load_sheet(file,sheet_name)
     return df_points
 #################type level###################
 @st.cache_data
@@ -151,7 +151,7 @@ with st.sidebar:
     if st.session_state.get('uploaded_file'):
         st.download_button( label="导出工程",  
                             data=str(st.session_state.to_dict()).encode('utf-8'),
-                            file_name=st.session_state['uploaded_file'].split(".")[0]+'_'+current_datetime_string+'.proj'
+                            file_name=st.session_state['uploaded_file'].name.split(".")[0]+'_'+current_datetime_string+'.proj' #st.session_state['uploaded_file'].split(".")[0]+'_'+current_datetime_string+'.proj'
                             )
     
 
@@ -159,10 +159,8 @@ with st.sidebar:
 
 # 1.load file
 if st.session_state.get('uploaded_file'):
-    file_name = st.session_state['uploaded_file']
-    df_panels,df_loops = domain_load_panels_loops(file_name)
+    df_panels,df_loops = domain_load_panels_loops(st.session_state['uploaded_file'])
 else:
-    file_name = ""
     df_panels = pd.DataFrame()
     df_loops = pd.DataFrame()
 
@@ -199,7 +197,7 @@ else:
                         index = df_panels[df_panels["名称"]==panel_name].index[0]
                         panel_id = df_panels.at[index,"控制器地址"] 
                         # st.write("slave:",slave,",slave_value:",panel_name,",panel_id:",panel_id)
-                        df_points = domain_load_points(file_name,panel_id)
+                        df_points = domain_load_points(st.session_state['uploaded_file'],panel_id)
 # 4. select objects types and show
                         type_option = st.multiselect('选择需要转换的类型',types_options,key=host+slave+"_type_key")
                         for type in types_options:
@@ -215,7 +213,7 @@ else:
                             st.write(slave,"最终结果：",appended_df)
                             find_duplicates_UI(appended_df["Modbus"])
                             csv_result = appended_df.drop(appended_df.columns[[0, 1]], axis=1).to_csv(index=False).encode('utf-8')
-                            download_file_name = st.session_state["uploaded_file"].split(".")[0]+'_'+host+'_'+slave+'.csv'
+                            download_file_name = st.session_state["uploaded_file"].name.split(".")[0]+'_'+host+'_'+slave+'.csv'#st.session_state["uploaded_file"].split(".")[0]+'_'+host+'_'+slave+'.csv'
                             ret = st.download_button(
                                 label="导出CSV文件",
                                 data=csv_result,

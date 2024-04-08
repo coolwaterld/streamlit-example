@@ -12,8 +12,8 @@ for key, val in st.session_state.items():
 
 
 @st.cache_data
-def load_sheet(filename, sheetname):
-    df = pd.read_excel(filename, sheetname)
+def load_sheet(file, sheetname):
+    df = pd.read_excel(file, sheetname)
     return df
 
 if 'name_list' not in st.session_state:
@@ -79,10 +79,10 @@ tab1,tab2= st.tabs(["加载FS30i配置文件","加载已有工程文件"])
 with tab1:
     tmp_file = st.file_uploader("导入FS30i配置文件xlsx")
     if tmp_file is not None:
-        if st.session_state.get("uploaded_file") and st.session_state.get("uploaded_file") != tmp_file.name:
+        if st.session_state.get("uploaded_file") and st.session_state.get("uploaded_file") != tmp_file:#tmp_file.name:
             st.session_state.clear()
             st.session_state["hosts_multiselect_key"]=[]
-        st.session_state["uploaded_file"] = tmp_file.name
+        st.session_state["uploaded_file"] = tmp_file #tmp_file.name
 with tab2:
     project_file = st.file_uploader("导入工程文件")
     if project_file is not None:
@@ -98,15 +98,13 @@ with tab2:
                     st.session_state[new_key] = {}
                 st.session_state[new_key].update(val)
                 # st.session_state["ETH1slave0FC30i_dataeditor_key___changed"]["edited_rows"][0]["Modbus_Offset"] = 13
-                st.write(new_key,st.session_state[new_key])
+                # st.write(new_key,st.session_state[new_key])
 
 
 
 if st.session_state.get("uploaded_file"):
-    st.write("当前加载的文件：",st.session_state.get("uploaded_file"))
+    st.write("当前加载的文件：",st.session_state.get("uploaded_file").name)
     df_controler = load_sheet(st.session_state.uploaded_file, '控制器')
-
-    # st.session_state['name_list'] = list(df_controler['名称'])
     panels = list(df_controler['名称'])
 
     
@@ -121,21 +119,13 @@ if st.session_state.get("uploaded_file"):
                          key=host+"_baudrate_selectbox_key")
             st.selectbox("transfmt:", transfmt_options,
                          key=host+"_baudrate_transfmt_key")
-            # st.multiselect(
-            #     '选择在当前端口中要使能的Panel', st.session_state['name_list'], key=host+"_panel_multiselect_key")
+
             st.write("选择Salve对应的Panel")
             if st.session_state[host].get('indexs'):
                 for i in st.session_state[host]['indexs'] :
                     display_input_slave_row(i,panels,host)
             display_slave_button(host)
 
-            # st.session_state['export_configs']["hosts"][host].update({
-            #     "properties": {
-            #         "baudrate": st.session_state[host+"_baudrate_selectbox_key"],
-            #         "transfmt": st.session_state[host+"_baudrate_transfmt_key"]
-            #     },
-            #     "panels": st.session_state[host]["panels"]
-            # })
             st.session_state['export_configs']["hosts"][host]= {
                 "properties": {
                     "baudrate": st.session_state[host+"_baudrate_selectbox_key"],
@@ -150,8 +140,7 @@ if st.session_state.get("uploaded_file"):
                           value="192.168.1.1")
             st.number_input("Port:", key=host +
                             "_port_number_input_key", value=9000)
-            # options = st.multiselect(
-            #     '选择在当前端口中要使能的Panel', st.session_state['name_list'], key=host+"_panel_multiselect_key")
+
             st.write("选择Salve对应的Panel")
             if st.session_state[host].get('indexs'):
                 for i in st.session_state[host]['indexs'] :
@@ -159,15 +148,6 @@ if st.session_state.get("uploaded_file"):
 
             display_slave_button(host)
 
-            st.write(st.session_state['export_configs']["hosts"])
-
-            # st.session_state['export_configs']["hosts"][host].update({
-            #     "properties": {
-            #         "IP": st.session_state[host+"_ip_text_input_key"],
-            #         "Port": st.session_state[host+"_port_number_input_key"]
-            #     },
-            #     "panels": st.session_state[host]["panels"]
-            # })
             st.session_state['export_configs']["hosts"][host] = {
                 "properties": {
                     "IP": st.session_state[host+"_ip_text_input_key"],
@@ -187,6 +167,8 @@ if st.session_state.get("uploaded_file") and st.session_state.get("export_config
     hostsstr = json.dumps(st.session_state['export_configs'],indent=2,ensure_ascii=False)
     st.download_button( label="导出Hosts配置文件",  
                         data=hostsstr.encode('utf-8'),
-                        file_name=st.session_state['uploaded_file'].split(".")[0]+'_hosts_'+current_datetime_string+'.json'
+                        file_name=st.session_state['uploaded_file'].name.split(".")[0]+'_hosts_'+current_datetime_string+'.json'#st.session_state['uploaded_file'].split(".")[0]+'_hosts_'+current_datetime_string+'.json'
                         )
-st.sidebar.write(st.session_state["export_configs"]) 
+
+if st.session_state.get("export_configs") and st.sidebar.checkbox('More Informaton'):
+    st.sidebar.write(st.session_state["export_configs"]) 
