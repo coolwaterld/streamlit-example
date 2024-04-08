@@ -115,11 +115,11 @@ def modbus_editor(df,host,slave,type):
     st.caption("🟠"+type)
     base_address = st.number_input('Modbus基地址', value=modbus_base_address[type],key=host+slave+type+"_numberinput_key")
     key = host+slave+type+"_dataeditor_key_"+"__do_not_persist"
-    key_changed = host+slave+type+"_dataeditor_key_"+"__changed"
-    if st.session_state.get(key_changed):
-        for k,v in st.session_state[key_changed]["edited_rows"].items():
-            st.write(v)
-            df.at[k,"Modbus_Offset"]=1
+    # key_changed = host+slave+type+"_dataeditor_key_"+"__changed"
+    # if st.session_state.get(key_changed):
+    #     for k,v in st.session_state[key_changed]["edited_rows"].items():
+    #         st.write(v)
+    #         df.at[k,"Modbus_Offset"]=1
 
     df_result = st.data_editor(df,use_container_width=True,
                                 key=key,
@@ -225,5 +225,5 @@ else:
                                     st.session_state["export_configs"]["hosts"][host]["files"] = {}
                                 st.session_state["export_configs"]["hosts"][host]["files"][slave] =download_file_name
                                
-                                   
-st.sidebar.write(st.session_state["export_configs"]) 
+if st.session_state.get("export_configs") and st.sidebar.checkbox('More Informaton'):
+    st.sidebar.write(st.session_state["export_configs"])                                    
