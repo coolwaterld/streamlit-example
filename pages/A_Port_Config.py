@@ -75,16 +75,16 @@ def display_slave_button(host):
         st.button("Sort Slaves", on_click=sort_slave,key=host+'sort_salve_button__do_not_persist', args=(host,))
     ########################
 
-tab1,tab2= st.tabs(["加载FS30i配置文件","加载已有工程文件"])
+tab1,tab2= st.tabs(["Load FS30i Configuration File","Load Project File"])
 with tab1:
-    tmp_file = st.file_uploader("导入FS30i配置文件xlsx")
+    tmp_file = st.file_uploader("configuration file")
     if tmp_file is not None:
         if st.session_state.get("uploaded_file") and st.session_state.get("uploaded_file") != tmp_file:#tmp_file.name:
             st.session_state.clear()
             st.session_state["hosts_multiselect_key"]=[]
         st.session_state["uploaded_file"] = tmp_file #tmp_file.name
 with tab2:
-    project_file = st.file_uploader("导入工程文件")
+    project_file = st.file_uploader("project file")
     if project_file is not None:
         st.session_state.clear()
         content = project_file.read().decode('utf-8')
@@ -103,12 +103,12 @@ with tab2:
 
 
 if st.session_state.get("uploaded_file"):
-    st.write("当前加载的文件：",st.session_state.get("uploaded_file").name)
+    st.write("Current Loaded File:",st.session_state.get("uploaded_file").name)
     df_controler = load_sheet(st.session_state.uploaded_file, '控制器')
     panels = list(df_controler['名称'])
 
     
-    st.multiselect('选择在MODBUS中要使用的硬件端口', hosts_options, key="hosts_multiselect_key")
+    st.multiselect('Select Modbus Hardware Interfaces', hosts_options, key="hosts_multiselect_key")
     options = st.session_state.hosts_multiselect_key
     for host in options:
         st.header(host)
@@ -120,7 +120,7 @@ if st.session_state.get("uploaded_file"):
             st.selectbox("transfmt:", transfmt_options,
                          key=host+"_baudrate_transfmt_key")
 
-            st.write("选择Salve对应的Panel")
+            st.write("Select the panel mapping to the modbus slave")
             if st.session_state[host].get('indexs'):
                 for i in st.session_state[host]['indexs'] :
                     display_input_slave_row(i,panels,host)
@@ -149,7 +149,7 @@ if st.session_state.get("uploaded_file"):
             st.number_input("Port:", key=host +
                             "_port_number_input_key", value=9000)
 
-            st.write("选择Salve对应的Panel")
+            st.write("Select the panel mapping to the modbus slave")
             if st.session_state[host].get('indexs'):
                 for i in st.session_state[host]['indexs'] :
                     display_input_slave_row(i,panels,host)
@@ -181,7 +181,7 @@ if st.session_state.get("uploaded_file") and st.session_state.get("export_config
     current_datetime = datetime.now()
     current_datetime_string = current_datetime.strftime("%Y%m%d%H%M")
     hostsstr = json.dumps(st.session_state['export_configs'],indent=2,ensure_ascii=False)
-    st.download_button( label="导出Hosts配置文件",  
+    st.download_button( label="Export Hosts Configuration File",  
                         data=hostsstr.encode('utf-8'),
                         file_name=st.session_state['uploaded_file'].name.split(".")[0]+'_hosts_'+current_datetime_string+'.json'#st.session_state['uploaded_file'].split(".")[0]+'_hosts_'+current_datetime_string+'.json'
                         )

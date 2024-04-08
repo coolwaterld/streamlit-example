@@ -113,7 +113,7 @@ def modbus_editor(df,host,slave,type):
     df["type"] = types_options.index(type)
     df["Modbus_Offset"] = range(0,rows)
     st.caption("🟠"+type)
-    base_address = st.number_input('Modbus基地址', value=modbus_base_address[type],key=host+slave+type+"_numberinput_key")
+    base_address = st.number_input('Modbus Base Address', value=modbus_base_address[type],key=host+slave+type+"_numberinput_key")
     key = host+slave+type+"_dataeditor_key_"+"__do_not_persist"
     # key_changed = host+slave+type+"_dataeditor_key_"+"__changed"
     # if st.session_state.get(key_changed):
@@ -149,7 +149,7 @@ with st.sidebar:
     current_datetime_string = current_datetime.strftime("%Y%m%d%H%M")
 
     if st.session_state.get('uploaded_file'):
-        st.download_button( label="导出工程",  
+        st.download_button( label="Export Project",  
                             data=str(st.session_state.to_dict()).encode('utf-8'),
                             file_name=st.session_state['uploaded_file'].name.split(".")[0]+'_'+current_datetime_string+'.proj' #st.session_state['uploaded_file'].split(".")[0]+'_'+current_datetime_string+'.proj'
                             )
@@ -171,7 +171,7 @@ else:
     hosts_options = []
 
 if len(hosts_options)==0:
-    st.write("请先选择hosts")
+    st.write("Please select hosts first")
 else:
 # 2.select hosts
     tabs= st.tabs(hosts_options)
@@ -185,7 +185,7 @@ else:
             else:
                 slaves = []
             if len(slaves)==0:
-                st.write("请添加Modbus Slave")
+                st.write("Please add Modbus Slave first")
             else:
 # 3. select slave
                 slaves_tabs= st.tabs(slaves)
@@ -199,7 +199,7 @@ else:
                         # st.write("slave:",slave,",slave_value:",panel_name,",panel_id:",panel_id)
                         df_points = domain_load_points(st.session_state['uploaded_file'],panel_id)
 # 4. select objects types and show
-                        type_option = st.multiselect('选择需要转换的类型',types_options,key=host+slave+"_type_key")
+                        type_option = st.multiselect('Select the types of object you want to convert',types_options,key=host+slave+"_type_key")
                         for type in types_options:
                             dispay_tab(type,type_option,pd_dict_result)
 
@@ -210,12 +210,13 @@ else:
                                 pd_dict_result[key].rename(columns={'Modbus_Offset': 'Modbus'}, inplace=True)                          
                                     
                             appended_df = pd.concat(list(pd_dict_result.values()), ignore_index=True)
-                            st.write(slave,"最终结果：",appended_df)
+                            st.divider()
+                            st.write(slave,"Mapping Results",appended_df)
                             find_duplicates_UI(appended_df["Modbus"])
                             csv_result = appended_df.drop(appended_df.columns[[0, 1]], axis=1).to_csv(index=False).encode('utf-8')
                             download_file_name = st.session_state["uploaded_file"].name.split(".")[0]+'_'+host+'_'+slave+'.csv'#st.session_state["uploaded_file"].split(".")[0]+'_'+host+'_'+slave+'.csv'
                             ret = st.download_button(
-                                label="导出CSV文件",
+                                label="Export mapping CSV file",
                                 data=csv_result,
                                 file_name=download_file_name,
                                 mime='text/csv',
