@@ -111,6 +111,12 @@ if st.session_state.get("uploaded_file"):
     
     st.multiselect(current_text["UI_MSModbusHW"], hosts_options, key="hosts_multiselect_key")
     options = st.session_state.hosts_multiselect_key
+    ###############
+    to_delete = list(set(hosts_options).difference(options))
+    for host in to_delete:
+        if st.session_state['export_configs']["hosts"].get(host):
+            del st.session_state['export_configs']["hosts"][host]
+    ###############
     for host in options:
         st.header(host)
         if "COM" in host:
