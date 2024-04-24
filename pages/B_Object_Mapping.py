@@ -10,6 +10,9 @@ for key, val in st.session_state.items():
     if not key.endswith('__do_not_persist'):
         st.session_state[key] = val
 
+# st.write(st.session_state.current_text["greet"])
+current_text = st.session_state.current_text
+
 ###########################data ############################
 
 modbus_base_address = {
@@ -54,11 +57,11 @@ def load_sheet(file, sheetname):
 
 @st.cache_data
 def domain_load_panels_loops(file):
-    sheet_name = "控制器"
+    sheet_name = current_text["K_panel"]
     df_panels = load_sheet(file,sheet_name)
     # st.write("df_panels",df_panels)
 
-    sheet_name = "回路"
+    sheet_name = current_text["K_loop"]
     df_loops = load_sheet(file,sheet_name)
     # st.write("df_loops:",df_loops)
 
@@ -67,39 +70,39 @@ def domain_load_panels_loops(file):
 #################panel level###################
 @st.cache_data
 def domain_load_points(file,panel_id):
-    sheet_name = "点&通道_1_"+str(panel_id)
+    sheet_name = current_text["K_pointsChanels"]+str(panel_id)
     df_points = load_sheet(file,sheet_name)
     return df_points
 #################type level###################
 @st.cache_data
 def domain_load_type(df_panels,df_loops,df_points,panels_id,type):
     if type == "FC30i":
-        df_tmp = df_panels[df_panels['控制器地址'] == panel_id].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
-        df_tmp.rename(columns={'IP地址': '回路地址', '子网掩码': '点地址', '默认网关': '通道地址'}, inplace=True)
-        df_tmp['回路地址'] = 0
-        df_tmp['点地址'] = 0
-        df_tmp['通道地址'] = 0
+        df_tmp = df_panels[df_panels[current_text["K_panelID"]] == panel_id].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
+        df_tmp.rename(columns={current_text["K_IP"]: current_text["K_loopID"], current_text["K_subnetMask"]: current_text["K_pointID"], current_text["K_gateway"]: current_text["K_channelID"]}, inplace=True)
+        df_tmp[current_text["K_loopID"]] = 0
+        df_tmp[current_text["K_pointID"]] = 0
+        df_tmp[current_text["K_channelID"]] = 0
     elif type == 'P2_Object':
-        df_tmp = df_points[(df_points['回路地址'] >= 1) & (df_points['回路地址'] <= 20) & (df_points['点地址'] >= 1)& (df_points['点地址'] <= 255)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
+        df_tmp = df_points[(df_points[current_text["K_loopID"]] >= 1) & (df_points[current_text["K_loopID"]] <= 20) & (df_points[current_text["K_pointID"]] >= 1)& (df_points[current_text["K_pointID"]] <= 255)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
     elif type == 'V-Point':
-        df_tmp = df_points[(df_points['回路地址'] >= 80) & (df_points['回路地址'] <= 81) & (df_points['点地址'] >= 1)& (df_points['点地址'] <= 255)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
+        df_tmp = df_points[(df_points[current_text["K_loopID"]] >= 80) & (df_points[current_text["K_loopID"]] <= 81) & (df_points[current_text["K_pointID"]] >= 1)& (df_points[current_text["K_pointID"]] <= 255)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
     elif type == 'P2_Loop':
-        df_tmp = df_loops[(df_loops['回路地址'] >= 1) & (df_loops['回路地址'] <= 20) & (df_loops['控制器地址'] == panels_id)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
-        df_tmp.rename(columns={'拓扑类型': '点地址', '接地检测': '通道地址'}, inplace=True)
-        df_tmp['点地址'] = 0
-        df_tmp['通道地址'] = 0
+        df_tmp = df_loops[(df_loops[current_text["K_loopID"]] >= 1) & (df_loops[current_text["K_loopID"]] <= 20) & (df_loops[current_text["K_panelID"]] == panels_id)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
+        df_tmp.rename(columns={current_text["K_topologyType"]: current_text["K_pointID"], current_text["K_groundDetection"]: current_text["K_channelID"]}, inplace=True)
+        df_tmp[current_text["K_pointID"]] = 0
+        df_tmp[current_text["K_channelID"]] = 0
     elif type == 'ILOP':
-        df_tmp = df_points[(df_points['回路地址'] == 33) & (df_points['通道地址'] == 0)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
+        df_tmp = df_points[(df_points[current_text["K_loopID"]] == 33) & (df_points[current_text["K_channelID"]] == 0)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
     elif type == 'ILOP_Ch':
-        df_tmp = df_points[(df_points['回路地址'] == 33) & (df_points['通道地址'] > 0)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
+        df_tmp = df_points[(df_points[current_text["K_loopID"]] == 33) & (df_points[current_text["K_channelID"]] > 0)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
     elif type == 'FRT':
-        df_tmp = df_points[(df_points['回路地址'] == 37)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
+        df_tmp = df_points[(df_points[current_text["K_loopID"]] == 37)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
     elif type == 'Power':
-        df_tmp = df_points[(df_points['回路地址'] == 60)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
+        df_tmp = df_points[(df_points[current_text["K_loopID"]] == 60)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
     elif type == 'MB_IO':
-        df_tmp = df_points[(df_points['回路地址'] == 61)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
+        df_tmp = df_points[(df_points[current_text["K_loopID"]] == 61)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
     elif type == 'Comm_Port':
-        df_tmp = df_points[(df_points['回路地址'] == 62)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
+        df_tmp = df_points[(df_points[current_text["K_loopID"]] == 62)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
     else:
         st.write(type,"is wrong")
         df_tmp = pd.DataFrame()
@@ -113,7 +116,7 @@ def modbus_editor(df,host,slave,type):
     df["type"] = types_options.index(type)
     df["Modbus_Offset"] = range(0,rows)
     st.caption("🟠"+type)
-    base_address = st.number_input('Modbus Base Address', value=modbus_base_address[type],key=host+slave+type+"_numberinput_key")
+    base_address = st.number_input(current_text["UI_NIModbusBaseAddr"], value=modbus_base_address[type],key=host+slave+type+"_numberinput_key")
     key = host+slave+type+"_dataeditor_key_"+"__do_not_persist"
     # key_changed = host+slave+type+"_dataeditor_key_"+"__changed"
     # if st.session_state.get(key_changed):
@@ -199,7 +202,7 @@ else:
                         # st.write("slave:",slave,",slave_value:",panel_name,",panel_id:",panel_id)
                         df_points = domain_load_points(st.session_state['uploaded_file'],panel_id)
 # 4. select objects types and show
-                        type_option = st.multiselect('Select the types of object you want to convert',types_options,key=host+slave+"_type_key")
+                        type_option = st.multiselect(current_text["UI_MSObjectTypes"],types_options,key=host+slave+"_type_key")
                         for type in types_options:
                             dispay_tab(type,type_option,pd_dict_result)
 
@@ -211,12 +214,12 @@ else:
                                     
                             appended_df = pd.concat(list(pd_dict_result.values()), ignore_index=True)
                             st.divider()
-                            st.write(slave,"Mapping Results",appended_df)
+                            st.write(slave,current_text["UI_WMappingResults"],appended_df)
                             find_duplicates_UI(appended_df["Modbus"])
                             csv_result = appended_df.drop(appended_df.columns[[0, 1]], axis=1).to_csv(index=False).encode('utf-8')
                             download_file_name = st.session_state["uploaded_file"].name.split(".")[0]+'_'+host+'_'+slave+'.csv'#st.session_state["uploaded_file"].split(".")[0]+'_'+host+'_'+slave+'.csv'
                             ret = st.download_button(
-                                label="Export mapping CSV file",
+                                label=current_text["UI_DBTExportCSV"],
                                 data=csv_result,
                                 file_name=download_file_name,
                                 mime='text/csv',
@@ -226,5 +229,5 @@ else:
                                     st.session_state["export_configs"]["hosts"][host]["files"] = {}
                                 st.session_state["export_configs"]["hosts"][host]["files"][slave] =download_file_name
                                
-if st.session_state.get("export_configs") and st.sidebar.checkbox('More Informaton'):
+if st.session_state.get("export_configs") and st.sidebar.checkbox(current_text["UI_CBMoreInformation"]):
     st.sidebar.write(st.session_state["export_configs"])                                    
