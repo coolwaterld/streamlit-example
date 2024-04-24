@@ -10,6 +10,7 @@ for key, val in st.session_state.items():
     if not key.endswith('__do_not_persist'):
         st.session_state[key] = val
 
+current_text = st.session_state.current_text
 
 @st.cache_data
 def load_sheet(file, sheetname):
@@ -70,21 +71,21 @@ def display_input_slave_row(i,panels,host):
 def display_slave_button(host):
     c1, c2,c3 = st.columns([1,1,4])
     with c1:
-        st.button("Add Slave", on_click=add_slave,key=host+'add_salve_button__do_not_persist', args=(host,))
+        st.button(current_text["UI_BTAddSlave"], on_click=add_slave,key=host+'add_salve_button__do_not_persist', args=(host,))
     with c2:
-        st.button("Sort Slaves", on_click=sort_slave,key=host+'sort_salve_button__do_not_persist', args=(host,))
+        st.button(current_text["UI_BTSortSlave"], on_click=sort_slave,key=host+'sort_salve_button__do_not_persist', args=(host,))
     ########################
 
-tab1,tab2= st.tabs(["Load FS30i Configuration File","Load Project File"])
+tab1,tab2= st.tabs([current_text["UI_Tabload30Config"],current_text["UI_TabloadProjectFile"]])
 with tab1:
-    tmp_file = st.file_uploader("configuration file")
+    tmp_file = st.file_uploader("Configuration file",label_visibility="collapsed")
     if tmp_file is not None:
         if st.session_state.get("uploaded_file") and st.session_state.get("uploaded_file") != tmp_file:#tmp_file.name:
             st.session_state.clear()
             st.session_state["hosts_multiselect_key"]=[]
         st.session_state["uploaded_file"] = tmp_file #tmp_file.name
 with tab2:
-    project_file = st.file_uploader("project file")
+    project_file = st.file_uploader("Project file",label_visibility="collapsed")
     if project_file is not None:
         st.session_state.clear()
         content = project_file.read().decode('utf-8')
@@ -103,12 +104,12 @@ with tab2:
 
 
 if st.session_state.get("uploaded_file"):
-    st.write("Current Loaded File:",st.session_state.get("uploaded_file").name)
-    df_controler = load_sheet(st.session_state.uploaded_file, '控制器')
-    panels = list(df_controler['名称'])
+    st.write(current_text["UI_WloadedFile"],st.session_state.get("uploaded_file").name)
+    df_controler = load_sheet(st.session_state.uploaded_file, current_text["K_panel"])
+    panels = list(df_controler[current_text["K_ID"]])
 
     
-    st.multiselect('Select Modbus Hardware Interfaces', hosts_options, key="hosts_multiselect_key")
+    st.multiselect(current_text["UI_MSModbusHW"], hosts_options, key="hosts_multiselect_key")
     options = st.session_state.hosts_multiselect_key
     ###############delete none selected hosts from st.session_state['export_configs']["hosts"]
     to_delete = list(set(hosts_options).difference(options))
@@ -126,7 +127,7 @@ if st.session_state.get("uploaded_file"):
             st.selectbox("transfmt:", transfmt_options,
                          key=host+"_baudrate_transfmt_key")
 
-            st.write("Select the panel mapping to the modbus slave")
+            st.write(current_text["UI_WPanelSlave"])
             if st.session_state[host].get('indexs'):
                 for i in st.session_state[host]['indexs'] :
                     display_input_slave_row(i,panels,host)
@@ -150,12 +151,12 @@ if st.session_state.get("uploaded_file"):
 
 
         else:
-            st.text_input("IP:", key=host+"_ip_text_input_key",
-                          value="192.168.1.1")
-            st.number_input("Port:", key=host +
+            st.text_input(current_text["UI_TIIP"], key=host+"_ip_text_input_key",
+                          value="")
+            st.number_input(current_text["UI_TIPort"], key=host +
                             "_port_number_input_key", value=9000)
 
-            st.write("Select the panel mapping to the modbus slave")
+            st.write(current_text["UI_WPanelSlave"])
             if st.session_state[host].get('indexs'):
                 for i in st.session_state[host]['indexs'] :
                     display_input_slave_row(i,panels,host)
@@ -187,10 +188,10 @@ if st.session_state.get("uploaded_file") and st.session_state.get("export_config
     current_datetime = datetime.now()
     current_datetime_string = current_datetime.strftime("%Y%m%d%H%M")
     hostsstr = json.dumps(st.session_state['export_configs'],indent=2,ensure_ascii=False)
-    st.download_button( label="Export Hosts Configuration File",  
+    st.download_button( label=current_text["UI_DBTExportConfig"],  
                         data=hostsstr.encode('utf-8'),
                         file_name=st.session_state['uploaded_file'].name.split(".")[0]+'_hosts_'+current_datetime_string+'.json'#st.session_state['uploaded_file'].split(".")[0]+'_hosts_'+current_datetime_string+'.json'
                         )
 
-if st.session_state.get("export_configs") and st.sidebar.checkbox('More Informaton'):
+if st.session_state.get("export_configs") and st.sidebar.checkbox(current_text["UI_CBMoreInformation"]):
     st.sidebar.write(st.session_state["export_configs"]) 

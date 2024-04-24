@@ -25,8 +25,11 @@ for key, val in st.session_state.items():
     if not key.endswith('__do_not_persist'):
         st.session_state[key] = val
 
-old_file = st.file_uploader("载入老文件")
-new_file = st.file_uploader("载入新文件")
+current_text = st.session_state.current_text
+
+
+old_file = st.file_uploader(current_text["UI_FUloadOldFile"])
+new_file = st.file_uploader(current_text["UI_FUloadNewFile"])
 if (old_file is not None) & (new_file is not None):
     old_dict = pd.read_excel(old_file, sheet_name=None)
     new_dict = pd.read_excel(new_file, sheet_name=None)
@@ -37,42 +40,41 @@ if (old_file is not None) & (new_file is not None):
     new_added = list(set(new_keys).difference(old_keys))
     new_intersection = list(set(old_keys).intersection(new_keys))
     if len(new_reduced)>0:
-        st.write("减少的表:",new_reduced)
+        st.write(current_text["UI_WreducedTables"],new_reduced)
     if len(new_added)>0:
-        st.write("新增的表:",new_added)
+        st.write(current_text["UI_WaddedTables"],new_added)
     df1 = pd.DataFrame()
     df2 = pd.DataFrame()
     on = []
-    sheet_name = st.selectbox("Choose sheet for comparing ", new_intersection, index=None, )
+    sheet_name = st.selectbox(current_text["UI_SBsheetForComparing"], new_intersection, index=None, )
     # st.write('You selected:', sheet_name)
 
-    if sheet_name == "控制器":
-        on = ["系统地址","控制器地址"]
+    if sheet_name == current_text["K_panel"]:
+        on = [current_text["K_systemID"],current_text["K_panelID"]]
         df1 = old_dict[sheet_name].iloc[:, [0, 1, 2, 3]]
         df2 = new_dict[sheet_name].iloc[:, [0, 1, 2, 3]]
     elif sheet_name == "回路":
-        on = ["系统地址","控制器地址","回路地址"]
+        on = [current_text["K_systemID"],current_text["K_panelID"],current_text["K_loopID"]]
         df1 = old_dict[sheet_name].iloc[:, [0, 1, 2, 3, 4]]
         df2 = new_dict[sheet_name].iloc[:, [0, 1, 2, 3, 4]]
-    elif sheet_name and ("点&通道" in sheet_name):
-        on = ["系统地址","控制器地址","回路地址","点地址","通道地址"]
+    elif sheet_name and (current_text["K_pointsChanels"] in sheet_name):
+        on = [current_text["K_systemID"],current_text["K_panelID"],current_text["K_loopID"],current_text["K_pointID"],current_text["K_channelID"]]
         df1 = old_dict[sheet_name].iloc[:, [0, 1, 2, 3, 4, 5, 6]]
         df2 = new_dict[sheet_name].iloc[:, [0, 1, 2, 3, 4, 5, 6]]
-    else:
-        st.write('当前只关心[控制器],[回路],[点&通道]', sheet_name)
+    # else:
+    #     st.write('当前只关心[控制器],[回路],[点&通道]', sheet_name)
         
 
     merge_options = ['both','left_only','right_only','diff']
-    merge_selected = st.multiselect( 'What types do you want to ',  merge_options, merge_options)
+    merge_selected = st.multiselect( current_text["UI_MSshowComparedContent"],  merge_options, merge_options)
 
     if len(on)>0:
         merged_df = pd.merge(df1, df2, on=on, suffixes=('_old', '_new'), how='outer', indicator=True)
-        # st.table(merged_df)
         merged_df['_merge'] = pd.Categorical(merged_df['_merge'], categories=merge_options)
-        merged_df.loc[(((merged_df['类型_new'] != merged_df['类型_old'])|(merged_df['名称_new'] != merged_df['名称_old'])) & (merged_df['_merge'] == 'both')), '_merge'] = 'diff'
+        merged_df.loc[(((merged_df[current_text["K_type"]+'_new'] != merged_df[current_text["K_type"]+'_old'])|(merged_df[current_text["K_ID"]+'_new'] != merged_df[current_text["K_ID"]+'_old'])) & (merged_df['_merge'] == 'both')), '_merge'] = 'diff'
 
         merge_counts = merged_df['_merge'].value_counts()
-        st.write("🟠表[",sheet_name,"]共计",dict(merge_counts))
+        st.write("🟠[",sheet_name,"]",dict(merge_counts))
 
         merged_df = merged_df[merged_df['_merge'].isin(merge_selected)]
         styled_df = merged_df.style.apply(apply_row_colors, axis=1)
