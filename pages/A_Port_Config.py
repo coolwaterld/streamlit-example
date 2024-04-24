@@ -110,7 +110,7 @@ if st.session_state.get("uploaded_file"):
     
     st.multiselect('Select Modbus Hardware Interfaces', hosts_options, key="hosts_multiselect_key")
     options = st.session_state.hosts_multiselect_key
-    ###############
+    ###############delete none selected hosts from st.session_state['export_configs']["hosts"]
     to_delete = list(set(hosts_options).difference(options))
     for host in to_delete:
         if st.session_state['export_configs']["hosts"].get(host):
