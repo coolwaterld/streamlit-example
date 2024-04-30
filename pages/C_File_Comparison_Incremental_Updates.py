@@ -4,6 +4,13 @@ from deepdiff import DeepDiff
 
 st.set_page_config(layout="wide")
 
+st.write('''<style>
+    [data-testid="stHorizontalBlock"]:has(div.PortMarker) [data-testid="stMarkdownContainer"] p { 
+        margin: 0px 0px 0.2rem; 
+        color: #ff0000;
+    }        
+    </style>''', unsafe_allow_html=True)
+
 row_colors = {
     'right_only': 'lightgreen',
     'left_only': 'lightcoral',
