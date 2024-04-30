@@ -49,7 +49,8 @@ texts = {
         "UI_MSObjectTypes":"Select the types of object you want to convert",
         "UI_NIModbusBaseAddr":"Modbus Base Address",
         "UI_WMappingResults":"Mapping Results",
-        "UI_DBTExportCSV":"Export mapping CSV file"
+        "UI_DBTExportCSV":"Export mapping CSV file",
+        "UI_DBTExportProject":"Export Project"
         },
     "中文": {
         "greet": "你好，世界！",
@@ -99,6 +100,7 @@ texts = {
         "UI_MSObjectTypes":"选择要转换的对象类型",
         "UI_NIModbusBaseAddr":"Modbus基地址",
         "UI_WMappingResults":"映射结果",
-        "UI_DBTExportCSV":"导出映射CSV文件"
+        "UI_DBTExportCSV":"导出映射CSV文件",
+        "UI_DBTExportProject":"导出工程"
         }
 }

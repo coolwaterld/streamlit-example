@@ -152,7 +152,7 @@ with st.sidebar:
     current_datetime_string = current_datetime.strftime("%Y%m%d%H%M")
 
     if st.session_state.get('uploaded_file'):
-        st.download_button( label="Export Project",  
+        st.download_button( label=current_text["UI_DBTExportProject"],  
                             data=str(st.session_state.to_dict()).encode('utf-8'),
                             file_name=st.session_state['uploaded_file'].name.split(".")[0]+'_'+current_datetime_string+'.proj' #st.session_state['uploaded_file'].split(".")[0]+'_'+current_datetime_string+'.proj'
                             )
