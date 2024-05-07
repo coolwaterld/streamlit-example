@@ -27,8 +27,8 @@ modbus_base_address = {
     'MB_IO':12200,
     'Comm_Port':12300
 }
-types_options = list(modbus_base_address.keys())
-st.session_state["export_configs"]["types"] = types_options
+modbus_types_options = list(modbus_base_address.keys())
+st.session_state["export_configs"]["types"] = modbus_types_options
 
 ###########################General ############################
 def find_duplicates_and_indices(lst):
@@ -73,62 +73,65 @@ def domain_load_points(file,panel_id):
     sheet_name = current_text["K_pointsChanels"]+str(panel_id)
     df_points = load_sheet(file,sheet_name)
     return df_points
-#################type level###################
+#################mtype level###################
 @st.cache_data
-def domain_load_type(df_panels,df_loops,df_points,panels_id,type):
-    if type == "FC30i":
+def domain_load_type(df_panels,df_loops,df_points,panels_id,mtype):
+    if mtype == "FC30i":
         df_tmp = df_panels[df_panels[current_text["K_panelID"]] == panel_id].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
         df_tmp.rename(columns={current_text["K_IP"]: current_text["K_loopID"], current_text["K_subnetMask"]: current_text["K_pointID"], current_text["K_gateway"]: current_text["K_channelID"]}, inplace=True)
         df_tmp[current_text["K_loopID"]] = 0
         df_tmp[current_text["K_pointID"]] = 0
         df_tmp[current_text["K_channelID"]] = 0
-    elif type == 'P2_Object':
+    elif mtype == 'P2_Object':
         df_tmp = df_points[(df_points[current_text["K_loopID"]] >= 1) & (df_points[current_text["K_loopID"]] <= 20) & (df_points[current_text["K_pointID"]] >= 1)& (df_points[current_text["K_pointID"]] <= 255)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
-    elif type == 'V-Point':
+    elif mtype == 'V-Point':
         df_tmp = df_points[(df_points[current_text["K_loopID"]] >= 80) & (df_points[current_text["K_loopID"]] <= 81) & (df_points[current_text["K_pointID"]] >= 1)& (df_points[current_text["K_pointID"]] <= 255)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
-    elif type == 'P2_Loop':
+    elif mtype == 'P2_Loop':
         df_tmp = df_loops[(df_loops[current_text["K_loopID"]] >= 1) & (df_loops[current_text["K_loopID"]] <= 20) & (df_loops[current_text["K_panelID"]] == panels_id)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
         df_tmp.rename(columns={current_text["K_topologyType"]: current_text["K_pointID"], current_text["K_groundDetection"]: current_text["K_channelID"]}, inplace=True)
         df_tmp[current_text["K_pointID"]] = 0
         df_tmp[current_text["K_channelID"]] = 0
-    elif type == 'ILOP':
+    elif mtype == 'ILOP':
         df_tmp = df_points[(df_points[current_text["K_loopID"]] == 33) & (df_points[current_text["K_channelID"]] == 0)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
-    elif type == 'ILOP_Ch':
+    elif mtype == 'ILOP_Ch':
         df_tmp = df_points[(df_points[current_text["K_loopID"]] == 33) & (df_points[current_text["K_channelID"]] > 0)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
-    elif type == 'FRT':
+    elif mtype == 'FRT':
         df_tmp = df_points[(df_points[current_text["K_loopID"]] == 37)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
-    elif type == 'Power':
+    elif mtype == 'Power':
         df_tmp = df_points[(df_points[current_text["K_loopID"]] == 60)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
-    elif type == 'MB_IO':
+    elif mtype == 'MB_IO':
         df_tmp = df_points[(df_points[current_text["K_loopID"]] == 61)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
-    elif type == 'Comm_Port':
+    elif mtype == 'Comm_Port':
         df_tmp = df_points[(df_points[current_text["K_loopID"]] == 62)].iloc[:, [0, 1, 2, 3, 4, 5, 6]].reset_index(drop=True)
     else:
-        st.write(type,"is wrong")
+        st.write(mtype,"is wrong")
         df_tmp = pd.DataFrame()
     return df_tmp
 
 
 ###########################UI ##########################
 
-def modbus_editor(df,host,slave,type):
+def modbus_editor(df,host,slave,mtype):
     rows, columns = df.shape
-    df["type"] = types_options.index(type)
-    df["Modbus_Offset"] = range(0,rows)
-    st.caption("🟠"+type)
-    base_address = st.number_input(current_text["UI_NIModbusBaseAddr"], value=modbus_base_address[type],key=host+slave+type+"_numberinput_key")
-    key = host+slave+type+"_dataeditor_key_"+"__do_not_persist"
-    # key_changed = host+slave+type+"_dataeditor_key_"+"__changed"
-    # if st.session_state.get(key_changed):
-    #     for k,v in st.session_state[key_changed]["edited_rows"].items():
-    #         st.write(v)
-    #         df.at[k,"Modbus_Offset"]=1
+    df["type"] = modbus_types_options.index(mtype)
+    
+    st.caption("🟠"+mtype)
+    base_address = st.number_input(current_text["UI_NIModbusBaseAddr"], value=modbus_base_address[mtype],key=host+slave+mtype+"_numberinput_key")
+    key = host+slave+mtype+"_dataeditor_key_"+"__do_not_persist"
+    key_changed = host+slave+mtype+"_dataeditor_key_"+"Modbus_Offset"
+    if st.session_state.get(key_changed):
+        df["Modbus_Offset"] = st.session_state[key_changed]
+    else:
+        df["Modbus_Offset"] = range(0,rows)
 
-    df_result = st.data_editor(df,use_container_width=True,
-                                key=key,
-                                hide_index = True,
-                                num_rows='dynamic')
-    # st.write("当前的结果：",df_result)
+
+    df_result = st.data_editor(df,
+                               use_container_width=True,
+                               key=key,
+                               hide_index = True,
+                               disabled=[0, 1, 2, 3, 4, 5, 6,7,8],
+                               num_rows='fixed')
+    st.session_state[key_changed] = dict(df_result["Modbus_Offset"])
     return base_address,df_result
 
 def find_duplicates_UI(lst):
@@ -137,15 +140,15 @@ def find_duplicates_UI(lst):
         for value, indices in duplicates_info.items():
             st.error(f"Value {value} is duplicated at indices: {indices}")
 
-def dispay_tab(type,type_option,pd_dict_result): 
-    if type in type_option:
-        df_temp = domain_load_type(df_panels,df_loops,df_points,panel_id,type)
-        base_address,df_result = modbus_editor(df_temp,host,slave,type)
-        pd_dict_result[type]=df_result
+def dispay_tab(mtype,mtype_selected,pd_dict_result): 
+    if mtype in mtype_selected:
+        df_temp = domain_load_type(df_panels,df_loops,df_points,panel_id,mtype)
+        base_address,df_result = modbus_editor(df_temp,host,slave,mtype)
+        pd_dict_result[mtype]=df_result
         find_duplicates_UI(df_result["Modbus_Offset"])
     else:
-        if type in pd_dict_result:
-            del pd_dict_result[type]
+        if mtype in pd_dict_result:
+            del pd_dict_result[mtype]
 
 with st.sidebar:
     current_datetime = datetime.now()
@@ -202,9 +205,9 @@ else:
                         # st.write("slave:",slave,",slave_value:",panel_name,",panel_id:",panel_id)
                         df_points = domain_load_points(st.session_state['uploaded_file'],panel_id)
 # 4. select objects types and show
-                        type_option = st.multiselect(current_text["UI_MSObjectTypes"],types_options,key=host+slave+"_type_key")
-                        for type in types_options:
-                            dispay_tab(type,type_option,pd_dict_result)
+                        mtype_selected = st.multiselect(current_text["UI_MSObjectTypes"],modbus_types_options,key=host+slave+"_type_key")
+                        for mtype in mtype_selected:
+                            dispay_tab(mtype,mtype_selected,pd_dict_result)
 
 # 5. concat and map dataframe              
                         if len(pd_dict_result) > 0:
@@ -230,4 +233,4 @@ else:
                                 st.session_state["export_configs"]["hosts"][host]["files"][slave] =download_file_name
                                
 if st.session_state.get("export_configs") and st.sidebar.checkbox(current_text["UI_CBMoreInformation"]):
-    st.sidebar.write(st.session_state["export_configs"])                                    
+    st.sidebar.write(st.session_state) #["export_configs"]                                   

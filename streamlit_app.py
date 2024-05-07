@@ -2,14 +2,14 @@ import streamlit as st
 import languages
 
 st.set_page_config(layout="wide")
-# how-to-keep-widget-value-remembered-in-multi-page-app
-for key, val in st.session_state.items():
-    if not key.endswith('__do_not_persist'):
-        st.session_state[key] = val
+# # how-to-keep-widget-value-remembered-in-multi-page-app
+# for key, val in st.session_state.items():
+#     if not key.endswith('__do_not_persist'):
+#         st.session_state[key] = val
 
 
 lang = st.sidebar.selectbox('Languages', list(languages.texts.keys()),key="languages",label_visibility="hidden")
-st.session_state.current_text = languages.texts[lang]
+st.session_state["current_text"] = languages.texts[lang]
 current_text = st.session_state.current_text
 
 st.header(current_text["UI_HPConfig_0"])
